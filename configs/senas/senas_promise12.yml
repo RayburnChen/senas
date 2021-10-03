@@ -43,13 +43,13 @@ training:
     init_channels: 32
     depth: 5
     epoch: 1800
-    batch_size: 40
+    batch_size: 12
     report_freq: 10
     n_workers: 2
     multi_gpus: True
-    double_down_channel: True
+    double_down_channel: False
     deep_supervision: False
-    grad_clip: 3
+    grad_clip: 5
     max_patience: 400
     model_optimizer:
         name: 'sgd'

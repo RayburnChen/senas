@@ -60,7 +60,7 @@ class Cell(nn.Module):
             self.preprocess0 = ShrinkBlock(c_in0, c_in1)
             c_part = c_out
             c_part = c_part // self.k
-        self.preprocess1 = nn.Identity()  # suppose c_in1 == c
+        self.preprocess1 = nn.Identity()
 
         self.post_process = RectifyBlock(c_part * self._meta_node_num, c_out, cell_type=cell_type)
 

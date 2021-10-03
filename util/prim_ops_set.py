@@ -84,21 +84,21 @@ def build_ops(op_name, op_type: OpType, c_in: Optional[int] = None, c_ot: Option
         raise NotImplementedError()
 
 
-class Conv(nn.Sequential):
+class ReLUConv(nn.Sequential):
 
     def __init__(self, c_in, c_ot, kernel_size=3, stride=1, dilation=1, transpose=False, output_padding=0, dropout=0):
+        act = build_activation(False)
         conv = build_weight(c_in, c_ot, kernel_size, stride, dilation, transpose, output_padding, dropout)
-        super().__init__(*conv)
+        super().__init__(act, *conv)
 
 
-class ConvBnReLU(nn.Sequential):
+class ConvBn(nn.Sequential):
 
     def __init__(self, c_in, c_ot, kernel_size=3, stride=1, dilation=1, transpose=False, output_padding=0,
                  affine=True, dropout=0):
         conv = build_weight(c_in, c_ot, kernel_size, stride, dilation, transpose, output_padding, dropout)
         norm = build_norm(c_ot, affine)
-        act = build_activation()
-        super().__init__(*conv, norm, act)
+        super().__init__(*conv, norm)
 
 
 class ReLUConvBn(nn.Sequential):
@@ -157,16 +157,17 @@ def build_activation(inplace=True):
 
 
 def build_rectify(c_in, c_ot, cell_type):
+    act = build_activation(False)
     if cell_type == 'up':
         if c_in == c_ot:
-            return nn.Upsample(scale_factor=2, mode='bilinear', align_corners=False)
+            return nn.Sequential(act, nn.Upsample(scale_factor=2, mode='bilinear', align_corners=False))
         else:
-            return nn.Sequential(nn.ConvTranspose2d(c_in, c_ot, kernel_size=1, stride=2, output_padding=1, bias=False), build_norm(c_ot, True))
+            return nn.Sequential(act, nn.ConvTranspose2d(c_in, c_ot, kernel_size=1, stride=2, output_padding=1, bias=False), build_norm(c_ot, True))
     else:
         if c_in == c_ot:
-            return nn.AvgPool2d(3, stride=2, padding=1, count_include_pad=False)
+            return nn.Sequential(act, nn.AvgPool2d(3, stride=2, padding=1, count_include_pad=False))
         else:
-            return nn.Sequential(nn.Conv2d(c_in, c_ot, kernel_size=1, stride=2, bias=False), build_norm(c_ot, True))
+            return nn.Sequential(act, nn.Conv2d(c_in, c_ot, kernel_size=1, stride=2, bias=False), build_norm(c_ot, True))
 
 
 class ZeroOp(nn.Module):
@@ -226,12 +227,13 @@ class ShrinkBlock(nn.Module):
 
     def __init__(self, c_in, c_ot):
         super().__init__()
-
+        self.act = build_activation(False)
         self.conv = nn.Conv2d(c_in, c_ot, kernel_size=3, padding=1, bias=False)
         self.norm = build_norm(c_ot, True)
 
     def forward(self, x):
-        out = self.conv(x)
+        out = self.act(x)
+        out = self.conv(out)
         out = self.norm(out)
         return out
 
@@ -244,13 +246,11 @@ class RectifyBlock(nn.Module):
         self.act = build_activation(False)
         self.conv = nn.Conv2d(c_in, c_ot, kernel_size=3, padding=1, bias=False)
         self.norm = build_norm(c_ot, True)
-        self.rect_act = build_activation()
 
     def forward(self, x):
         out = self.act(x)
         out = self.conv(out)
         out = self.norm(out)
-        out = self.rect_act(out)
         return out
 
 

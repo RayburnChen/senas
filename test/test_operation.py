@@ -24,16 +24,16 @@ class TestOperation(unittest.TestCase):
 
     def test_op0(self):
         start = time.time()
-        layer = ConvBnReLU(self.c, self.c, kernel_size=3).cuda()
+        layer = ConvBn(self.c, self.c, kernel_size=3).cuda()
         loss = self.classifier(layer=layer)
         end = time.time()
         print('{}x{}_Conv: loss: {}, cost: {}s'.format(3, 3, loss, end-start))
 
     def test_op1(self):
         start = time.time()
-        layer1 = ConvBnReLU(self.c, self.c, dilation=3, stride=2).cuda()
+        layer1 = ConvBn(self.c, self.c, dilation=3, stride=2).cuda()
         #layer2 = CWeightOp(self.c, self.c, stride=2, use_transpose=True).cuda()
-        layer2 = ConvBnReLU(self.c, self.c, stride=2, dilation=1, use_transpose=True).cuda()
+        layer2 = ConvBn(self.c, self.c, stride=2, dilation=1, use_transpose=True).cuda()
         #layer2 = ConvGnReLU(self.c, self.c, stride=2, use_depthwise=True, use_transpose=True).cuda()
         #layer2 = ConvGnReLU(self.c, self.c, stride=2, use_transpose=True).cuda()
         down = layer1(self.input)
@@ -47,21 +47,21 @@ class TestOperation(unittest.TestCase):
 
     def test_op2(self):
         start = time.time()
-        layer = ConvBnReLU(self.c, self.c, kernel_size=3, stride=2).cuda()
+        layer = ConvBn(self.c, self.c, kernel_size=3, stride=2).cuda()
         loss = self.classifier(layer=layer)
         end = time.time()
         print('{}x{}_stride_{}_Conv: loss {}, cost: {}s'.format(3, 3, 2, loss, end-start))
 
     def test_op3(self):
         start = time.time()
-        layer = ConvBnReLU(self.c, self.c, kernel_size=3, dilation=2).cuda()
+        layer = ConvBn(self.c, self.c, kernel_size=3, dilation=2).cuda()
         loss = self.classifier(layer=layer)
         end = time.time()
         print('{}x{}_Dil_r_{}_Conv: loss {}, cost: {}s'.format(3, 3, 2, loss, end-start))
 
     def test_ops4(self):
         start = time.time()
-        layer = ConvBnReLU(self.c, self.c, kernel_size=3, groups=self.c).cuda()
+        layer = ConvBn(self.c, self.c, kernel_size=3, groups=self.c).cuda()
         loss = self.classifier(layer=layer)
         end = time.time()
         print('{}x{}_Group_Conv: loss {}, cost: {}s'.format(3, 3, loss, end-start))
@@ -75,14 +75,14 @@ class TestOperation(unittest.TestCase):
 
     def test_op6(self):
         start = time.time()
-        layer = ConvBnReLU(self.c, self.c, kernel_size=3, stride=1).cuda()
+        layer = ConvBn(self.c, self.c, kernel_size=3, stride=1).cuda()
         loss = self.classifier(layer=layer)
         end = time.time()
         print('Channel Weight: loss {}, cost: {}s'.format(loss, end-start))
 
     def test_op7(self):
         start = time.time()
-        layer = ConvBnReLU(self.c, self.c, kernel_size=3, use_transpose=True, stride=2).cuda()
+        layer = ConvBn(self.c, self.c, kernel_size=3, use_transpose=True, stride=2).cuda()
         loss = self.classifier(layer=layer)
         end = time.time()
         print('Tran Channel Weight: loss{}, cost: {}s'.format(loss, end-start))

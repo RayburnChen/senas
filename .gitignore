@@ -182,3 +182,5 @@ dmypy.json
 /data/imgseg/Task09_Spleen/._labelsTr
 /data/imgseg/Task09_Spleen/dataset.json
 /tools/cell_visualize/
+/experiments/arc_search.sbatch
+/experiments/evaluation.sbatch
