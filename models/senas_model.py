@@ -16,7 +16,8 @@ class BuildCell(nn.Module):
         else:
             self.preprocess0 = ShrinkBlock(c_in0, c_in1)
             c_part = c_out
-        self.preprocess1 = nn.Identity()
+        self.preprocess1 = build_activation(False)
+        self.node_activation = build_activation()
 
         if cell_type == 'up':
             op_names, idx = zip(*genotype.up)
@@ -62,7 +63,7 @@ class BuildCell(nn.Module):
             h1 = self._ops[2 * i](h1)
             h2 = self._ops[2 * i + 1](h2)
 
-            s = h1 + h2
+            s = self.node_activation(h1 + h2)
             states += [s]
         return self.post_process(torch.cat([states[i] for i in self._concat], dim=1))
 

@@ -61,7 +61,8 @@ class Cell(nn.Module):
             self.preprocess0 = ShrinkBlock(c_in0, c_in1)
             c_part = c_out
             c_part = c_part // self.k
-        self.preprocess1 = nn.Identity()
+        self.preprocess1 = build_activation(False)
+        self.node_activation = build_activation()
 
         self.post_process = RectifyBlock(c_part * self._meta_node_num, c_out, cell_type=cell_type)
 
@@ -109,7 +110,7 @@ class Cell(nn.Module):
                 tmp_list += [
                     betas_path[j] * self._ops[offset + j](h, weights_norm[offset + j], weights_chg[offset + j])]
 
-            s = sum(tmp_list)
+            s = self.node_activation(sum(tmp_list))
             offset += len(states)
             states.append(s)
 

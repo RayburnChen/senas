@@ -69,13 +69,13 @@ def build_ops(op_name, op_type: OpType, c_in: Optional[int] = None, c_ot: Option
     elif op_name == 'max_pool':
         return AdapterBlock(c_in, c_ot, nn.MaxPool2d(3, stride=stride, padding=1))
     elif op_name == 'conv_1':
-        return ReLUConvBn(c_in, c_ot, kernel_size=1, stride=stride, transpose=use_transpose, output_padding=output_padding, dropout=dp)
+        return ConvBn(c_in, c_ot, kernel_size=1, stride=stride, transpose=use_transpose, output_padding=output_padding, dropout=dp)
     elif op_name == 'se_conv_3':
-        return ReLUConvBnSe(c_in, c_ot, kernel_size=3, stride=stride, transpose=use_transpose, output_padding=output_padding, dropout=dp)
+        return ConvBnSe(c_in, c_ot, kernel_size=3, stride=stride, transpose=use_transpose, output_padding=output_padding, dropout=dp)
     elif op_name == 'dil_3_conv_5':
-        return ReLUConvBn(c_in, c_ot, kernel_size=5, stride=stride, transpose=use_transpose, output_padding=output_padding, dilation=3, dropout=dp)
+        return ConvBn(c_in, c_ot, kernel_size=5, stride=stride, transpose=use_transpose, output_padding=output_padding, dilation=3, dropout=dp)
     elif op_name == 'dil_5_conv_5':
-        return ReLUConvBn(c_in, c_ot, kernel_size=5, stride=stride, transpose=use_transpose, output_padding=output_padding, dilation=5, dropout=dp)
+        return ConvBn(c_in, c_ot, kernel_size=5, stride=stride, transpose=use_transpose, output_padding=output_padding, dilation=5, dropout=dp)
     elif op_name == 'dep_sep_conv_3':
         return DepSepConv(c_in, c_ot, kernel_size=3, stride=stride, transpose=use_transpose, output_padding=output_padding, dropout=dp)
     elif op_name == 'dep_sep_conv_5':
@@ -101,36 +101,24 @@ class ConvBn(nn.Sequential):
         super().__init__(*conv, norm)
 
 
-class ReLUConvBn(nn.Sequential):
-
+class ConvBnSe(nn.Sequential):
     def __init__(self, c_in, c_ot, kernel_size=3, stride=1, dilation=1, transpose=False, output_padding=0,
                  affine=True, dropout=0):
-        act = build_activation(False)
-        conv = build_weight(c_in, c_ot, kernel_size, stride, dilation, transpose, output_padding, dropout)
-        norm = build_norm(c_ot, affine)
-        super().__init__(act, *conv, norm)
-
-
-class ReLUConvBnSe(nn.Sequential):
-    def __init__(self, c_in, c_ot, kernel_size=3, stride=1, dilation=1, transpose=False, output_padding=0,
-                 affine=True, dropout=0):
-        act = build_activation(False)
         conv = build_weight(c_in, c_ot, kernel_size, stride, dilation, transpose, output_padding, dropout)
         norm = build_norm(c_ot, affine)
         se = SEBlock(c_ot)
-        super().__init__(act, *conv, norm, se)
+        super().__init__(*conv, norm, se)
 
 
 class DepSepConv(nn.Sequential):
     def __init__(self, c_in, c_ot, kernel_size=3, stride=1, dilation=1, transpose=False, output_padding=0,
                  affine=True, dropout=0):
-        act = build_activation(False)
         depth_conv = build_weight(c_in, c_in, kernel_size, stride, dilation, transpose, output_padding, dropout, groups=c_in)
         depth_norm = build_norm(c_in, affine)
         depth_act = build_activation()
         point_conv = build_weight(c_in, c_ot, 1, 1, 1, False, 0, dropout)
         point_norm = build_norm(c_ot, affine)
-        super().__init__(act, *depth_conv, depth_norm, depth_act, *point_conv, point_norm)
+        super().__init__(*depth_conv, depth_norm, depth_act, *point_conv, point_norm)
 
 
 def build_weight(c_in, c_ot, kernel_size, stride, dilation, use_transpose, output_padding, dropout_rate, groups=1):
@@ -157,17 +145,17 @@ def build_activation(inplace=True):
 
 
 def build_rectify(c_in, c_ot, cell_type):
-    act = build_activation(False)
+    act = build_activation()
     if cell_type == 'up':
         if c_in == c_ot:
-            return nn.Sequential(act, nn.Upsample(scale_factor=2, mode='bilinear', align_corners=False))
+            return nn.Sequential(nn.Upsample(scale_factor=2, mode='bilinear', align_corners=False), build_norm(c_ot, True), act)
         else:
-            return nn.Sequential(act, nn.ConvTranspose2d(c_in, c_ot, kernel_size=1, stride=2, output_padding=1, bias=False), build_norm(c_ot, True))
+            return nn.Sequential(nn.ConvTranspose2d(c_in, c_ot, kernel_size=1, stride=2, output_padding=1, bias=False), build_norm(c_ot, True), act)
     else:
         if c_in == c_ot:
-            return nn.Sequential(act, nn.AvgPool2d(3, stride=2, padding=1, count_include_pad=False))
+            return nn.Sequential(nn.AvgPool2d(3, stride=2, padding=1, count_include_pad=False), build_norm(c_ot, True), act)
         else:
-            return nn.Sequential(act, nn.Conv2d(c_in, c_ot, kernel_size=1, stride=2, bias=False), build_norm(c_ot, True))
+            return nn.Sequential(nn.Conv2d(c_in, c_ot, kernel_size=1, stride=2, bias=False), build_norm(c_ot, True), act)
 
 
 class ZeroOp(nn.Module):
@@ -189,14 +177,12 @@ class AdapterBlock(nn.Module):
         self.c_in = c_in
         self.c_ot = c_ot
         self.module = module
-        self.act = build_activation(False)
         if self.c_in != self.c_ot:
             self.conv = nn.Conv2d(c_in, c_ot, kernel_size=1, bias=False)
             self.norm = build_norm(c_ot, True)
 
     def forward(self, x):
-        out = self.act(x)
-        out = self.module(out)
+        out = self.module(x)
         if self.c_in != self.c_ot:
             out = self.conv(out)
             out = self.norm(out)
@@ -227,14 +213,14 @@ class ShrinkBlock(nn.Module):
 
     def __init__(self, c_in, c_ot):
         super().__init__()
-        self.act = build_activation(False)
         self.conv = nn.Conv2d(c_in, c_ot, kernel_size=3, padding=1, bias=False)
         self.norm = build_norm(c_ot, True)
+        self.act = build_activation()
 
     def forward(self, x):
-        out = self.act(x)
-        out = self.conv(out)
+        out = self.conv(x)
         out = self.norm(out)
+        out = self.act(out)
         return out
 
 
@@ -243,13 +229,11 @@ class RectifyBlock(nn.Module):
     def __init__(self, c_in, c_ot, cell_type='down'):
         super().__init__()
         self.cell_type = cell_type
-        self.act = build_activation(False)
         self.conv = nn.Conv2d(c_in, c_ot, kernel_size=3, padding=1, bias=False)
         self.norm = build_norm(c_ot, True)
 
     def forward(self, x):
-        out = self.act(x)
-        out = self.conv(out)
+        out = self.conv(x)
         out = self.norm(out)
         return out
 
