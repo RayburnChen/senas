@@ -17,7 +17,7 @@ searching:
     alpha_begin: 15
     max_patience: 10
     gpu: True
-    multi_gpus: True
+    multi_gpus: False
     sharing_normal: False
     double_down_channel: False
     deep_supervision: False
@@ -46,7 +46,7 @@ training:
     batch_size: 12
     report_freq: 10
     n_workers: 2
-    multi_gpus: True
+    multi_gpus: False
     double_down_channel: False
     deep_supervision: False
     grad_clip: 5
