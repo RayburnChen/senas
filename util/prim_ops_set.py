@@ -13,6 +13,7 @@ OPS = {
     'max_pool': lambda c_in, c_ot, op_type, dp: build_ops('max_pool', op_type, c_in, c_ot),
     'up_sample': lambda c_in, c_ot, op_type, dp: AdapterBlock(c_in, c_ot, nn.Upsample(scale_factor=2, mode='bilinear', align_corners=False)),
 
+    'conv_1': lambda c_in, c_ot, op_type, dp: build_ops('conv_1', op_type, c_in, c_ot, dp=dp),
     'conv_3': lambda c_in, c_ot, op_type, dp: build_ops('conv_3', op_type, c_in, c_ot, dp=dp),
     'se_conv_3': lambda c_in, c_ot, op_type, dp: build_ops('se_conv_3', op_type, c_in, c_ot, dp=dp),
     'dil_3_conv_5': lambda c_in, c_ot, op_type, dp: build_ops('dil_3_conv_5', op_type, c_in, c_ot, dp=dp),
@@ -23,7 +24,7 @@ OPS = {
 
 DownOps = [
     'avg_pool',
-    'conv_3',
+    'conv_1',
     'se_conv_3',
     'dil_3_conv_5',
     'dil_5_conv_5',
@@ -33,7 +34,7 @@ DownOps = [
 
 UpOps = [
     'up_sample',
-    'conv_3',
+    'conv_1',
     'se_conv_3',
     'dil_3_conv_5',
     'dil_5_conv_5',
@@ -45,7 +46,7 @@ NormOps = [
     'avg_pool',
     'identity',
     'none',
-    'conv_3',
+    'conv_1',
     'se_conv_3',
     'dil_3_conv_5',
     'dil_5_conv_5',
@@ -68,6 +69,8 @@ def build_ops(op_name, op_type: OpType, c_in: Optional[int] = None, c_ot: Option
         return AdapterBlock(c_in, c_ot, nn.AvgPool2d(3, stride=stride, padding=1, count_include_pad=False))
     elif op_name == 'max_pool':
         return AdapterBlock(c_in, c_ot, nn.MaxPool2d(3, stride=stride, padding=1))
+    elif op_name == 'conv_1':
+        return ReLUConvBn(c_in, c_ot, kernel_size=1, stride=stride, transpose=use_transpose, output_padding=output_padding, dropout=dp)
     elif op_name == 'conv_3':
         return ReLUConvBn(c_in, c_ot, kernel_size=3, stride=stride, transpose=use_transpose, output_padding=output_padding, dropout=dp)
     elif op_name == 'se_conv_3':
