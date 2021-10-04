@@ -129,6 +129,8 @@ dmypy.json
 .pyre/
 /logs/senas/train/
 .sbatch
+.err
+.out
 
 /data/imgseg/CHAOS/CT_data_batch/
 /data/imgseg/MoNuSAC/MoNuSAC_cleaned/
@@ -184,3 +186,4 @@ dmypy.json
 /tools/cell_visualize/
 /experiments/arc_search.sbatch
 /experiments/evaluation.sbatch
+

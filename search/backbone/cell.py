@@ -12,14 +12,15 @@ class MixedOp(nn.Module):
         self.c_out = c_out
         self.c_part = c_out // self.k
 
-        if OpType.DOWN == self._op_type:
-            # down cell needs pooling before concat
-            self.skip = nn.AvgPool2d(3, stride=2, padding=1, count_include_pad=False)
-        elif OpType.UP == self._op_type:
-            # up cell needs interpolate before concat
-            self.skip = nn.Upsample(scale_factor=2, mode='bilinear', align_corners=False)
-        else:
-            self.skip = nn.Identity()
+        if self.c_out - self.c_part > 0:
+            if OpType.DOWN == self._op_type:
+                # down cell needs pooling before concat
+                self.skip = nn.AvgPool2d(3, stride=2, padding=1, count_include_pad=False)
+            elif OpType.UP == self._op_type:
+                # up cell needs interpolate before concat
+                self.skip = nn.Upsample(scale_factor=2, mode='bilinear', align_corners=False)
+            else:
+                self.skip = nn.Identity()
 
         for pri in self._op_type.value['ops']:
             op = OPS[pri](c_in, self.c_part, self._op_type, dp=0)
