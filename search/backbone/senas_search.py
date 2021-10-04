@@ -104,7 +104,7 @@ class SenasSearch(nn.Module):
 
         for j in reversed(range(self._depth - 1)):
             for i in range(1, self._depth - j):
-                ides = range(j, i + j)
+                ides = list(range(j, i + j))
                 gamma_ides = [sum(range(k + j)) + j for k in range(1, i)]
                 in0 = torch.cat([cell_out[ides[0]]] + [cell_out[ides[k]] * gamma[idx][0] + cell_out[ides[k + 1]] * gamma[idx][1] for k, idx in enumerate(gamma_ides)], dim=1)
                 in1 = cell_out[i + j]
