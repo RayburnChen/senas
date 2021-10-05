@@ -140,7 +140,6 @@ class Network(object):
         self.logger.info('Using genotype: {}'.format(self.genotype))
         model = get_segmentation_model(self.model_name,
                                        dataset=self.cfg['data']['dataset'],
-                                       backbone=self.cfg['training']['backbone'],
                                        c=init_channels,
                                        depth=depth,
                                        supervision=supervision,

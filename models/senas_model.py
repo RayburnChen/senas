@@ -5,7 +5,6 @@ from .resnet import BasicBlock
 
 
 class BuildCell(nn.Module):
-    """Build a cell from genotype"""
 
     def __init__(self, genotype, double_down, c_in0, c_in1, c_out, cell_type, dropout_prob=0):
         super(BuildCell, self).__init__()
@@ -79,18 +78,15 @@ class Head(nn.Module):
         return self.segmentation_head(self.up_cell(s0, ot))
 
 
-class SenasModel(BaseNet):
-    """Construct a network"""
+class SenasModel(nn.Module):
 
-    def __init__(self, nclass, in_channels, backbone=None, aux=False,
-                 c=48, depth=5, dropout_prob=0,
+    def __init__(self, nclass, in_channels, c=32, depth=5, dropout_prob=0,
                  supervision=False, genotype=None, double_down_channel=False):
-
-        super(SenasModel, self).__init__(nclass, aux, backbone, norm_layer=nn.GroupNorm)
+        super(SenasModel, self).__init__()
         self._depth = depth
         self._double_down_channel = double_down_channel
         self._supervision = supervision
-        self._multiplier = len(genotype.down_concat)
+        self._meta_node_num = len(genotype.down_concat)
         self.gamma = genotype.gamma
 
         assert self._depth >= 2, 'depth must >= 2'
@@ -115,7 +111,8 @@ class SenasModel(BaseNet):
             else:
                 c_curr = int(double_down * c_curr)
                 filters = [c_in0, c_in1, c_curr, 'down']
-                down_cell = BuildCell(genotype, double_down, c_in0, c_in1, c_curr, cell_type='down', dropout_prob=dropout_prob)
+                down_cell = BuildCell(genotype, double_down, c_in0, c_in1, c_curr, cell_type='down',
+                                      dropout_prob=dropout_prob)
                 down_f.append(filters)
                 down_block += [down_cell]
                 c_in0, c_in1 = c_in1, c_curr
@@ -132,7 +129,7 @@ class SenasModel(BaseNet):
                     filters = [0, 0, 0, 'None']
                     up_cell = None
                 else:
-                    _, _, head_curr, _ = num_filters[0][j]
+                    _, _, head_curr, _ = num_filters[i - 1][j]
                     _, _, head_down, _ = num_filters[i - 1][j + 1]
                     head_in0 = sum([num_filters[k][j][2] for k in range(i)])  # up_cell._multiplier
                     head_in1 = head_down  # up_cell._multiplier

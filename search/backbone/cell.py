@@ -44,17 +44,13 @@ class Cell(nn.Module):
 
     def __init__(self, meta_node_num, double_down, c_in0, c_in1, c_out, cell_type):
         super(Cell, self).__init__()
-        self.c_in0 = c_in0
-        self.c_in1 = c_in1
-        self.c_out = c_out
-        self._meta_node_num = meta_node_num
-        self._multiplier = meta_node_num
-        self._input_num = 2
-        self._cell_type = cell_type
         self.k = 4
-        if self._cell_type == 'down':
+        self._meta_node_num = meta_node_num
+        self._input_num = 2
+
+        if cell_type == 'down':
             # Note: the s0 size is twice than s1!
-            self.preprocess0 = build_rectify(c_in0, c_in1, self._cell_type)
+            self.preprocess0 = build_rectify(c_in0, c_in1, cell_type)
             c_part = c_out // double_down
             c_part = c_part // self.k
         else:
@@ -67,7 +63,6 @@ class Cell(nn.Module):
         self.post_process = RectifyBlock(c_part * self._meta_node_num, c_out, cell_type=cell_type)
 
         self._ops = nn.ModuleList()
-
         # i=0  j=0,1
         # i=1  j=0,1,2
         # i=2  j=0,1,2,3
@@ -86,19 +81,14 @@ class Cell(nn.Module):
                         op = MixedOp(c_in1, c_part, OpType.NORM)
                 else:
                     op = MixedOp(c_part, c_part, OpType.NORM)
-
-                self._ops.append(op)
+                self._ops += [op]
 
     def forward(self, in0, in1, weights_norm, weights_chg, betas):
-        # weight1: the normal operations weights with sharing
-        # weight2: the down or up operations weight, respectively
 
-        # the cell output is concatenate, so need a convolution to learn best combination
         s0 = self.preprocess0(in0)
         s1 = self.preprocess1(in1)
         states = [s0, s1]
         offset = 0
-
         # offset=0  states=2  _ops=[0,1]
         # offset=2  states=3  _ops=[2,3,4]
         # offset=5  states=4  _ops=[5,6,7,8]
@@ -114,8 +104,4 @@ class Cell(nn.Module):
             offset += len(states)
             states.append(s)
 
-        return self.post_process(torch.cat(states[-self._multiplier:], dim=1))
-
-
-
-
+        return self.post_process(torch.cat(states[-self._meta_node_num:], dim=1))

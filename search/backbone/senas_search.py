@@ -20,19 +20,14 @@ class Head(nn.Module):
 
 class SenasSearch(nn.Module):
 
-    def __init__(self, input_c, c, nclass, depth, meta_node_num=3,
-                 double_down_channel=True, use_softmax_head=False, supervision=False):
+    def __init__(self, in_channels, c, nclass, depth, meta_node_num=3, double_down_channel=True, supervision=False):
         super(SenasSearch, self).__init__()
-        self._num_classes = nclass  # 2
-        self._depth = depth  # 4
-        self._meta_node_num = meta_node_num  # 3
-        self._multiplier = meta_node_num  # 3
-        self._use_softmax_head = use_softmax_head
+        self._depth = depth
         self._double_down_channel = double_down_channel
         self._supervision = supervision
+        self._meta_node_num = meta_node_num
 
-        in_channels = input_c
-        assert depth >= 2, 'depth must >= 2'
+        assert self._depth >= 2, 'depth must >= 2'
         double_down = 2 if self._double_down_channel else 1
         c_in0, c_in1, c_curr = c, c, c
 
@@ -45,7 +40,7 @@ class SenasSearch(nn.Module):
         num_filters = []
         down_f = []
         down_block = nn.ModuleList()
-        for i in range(depth):
+        for i in range(self._depth):
             if i == 0:
                 filters = [1, 1, int(c_in1), 'stem1']
                 down_cell = self.stem1
@@ -57,15 +52,15 @@ class SenasSearch(nn.Module):
                 down_cell = Cell(meta_node_num, double_down, c_in0, c_in1, c_curr, cell_type='down')
                 down_f.append(filters)
                 down_block += [down_cell]
-                c_in0, c_in1 = c_in1, c_curr  # down_cell._multiplier
+                c_in0, c_in1 = c_in1, c_curr
 
         num_filters.append(down_f)
         self.blocks += [down_block]
 
-        for i in range(1, depth):
+        for i in range(1, self._depth):
             up_f = []
             up_block = nn.ModuleList()
-            for j in range(depth - i):
+            for j in range(self._depth - i):
                 _, _, head_curr, _ = num_filters[i - 1][j]
                 _, _, head_down, _ = num_filters[i - 1][j + 1]
                 head_in0 = sum([num_filters[k][j][2] for k in range(i)])  # up_cell._multiplier
@@ -81,10 +76,7 @@ class SenasSearch(nn.Module):
 
         c_in0 = c
         c_in1 = num_filters[-1][0][2]
-        self.head_block += [Head(meta_node_num, double_down, c_in0, c_in1, nclass)]
-
-        if use_softmax_head:
-            self.softmax = nn.LogSoftmax(dim=1)
+        self.head_block.append(Head(meta_node_num, double_down, c_in0, c_in1, nclass))
 
     def forward(self, x, weights_down_norm, weights_up_norm, weights_down, weights_up, betas_down, betas_up, gamma):
         cell_out = []
@@ -106,7 +98,9 @@ class SenasSearch(nn.Module):
             for i in range(1, self._depth - j):
                 ides = list(range(j, i + j))
                 gamma_ides = [sum(range(k + j)) + j for k in range(1, i)]
-                in0 = torch.cat([cell_out[ides[0]]] + [cell_out[ides[k]] * gamma[idx][0] + cell_out[ides[k + 1]] * gamma[idx][1] for k, idx in enumerate(gamma_ides)], dim=1)
+                in0 = torch.cat(
+                    [cell_out[ides[0]]] + [cell_out[ides[k]] * gamma[idx][0] + cell_out[ides[k + 1]] * gamma[idx][1] for
+                                           k, idx in enumerate(gamma_ides)], dim=1)
                 in1 = cell_out[i + j]
                 cell = self.blocks[i][j]
                 ot = cell(in0, in1, weights_up_norm, weights_up, betas_up)
@@ -128,8 +122,7 @@ class NAS(nn.Module):
         self._meta_node_num = meta_node_num
         self._depth = depth
 
-        self.net = SenasSearch(input_c, c, num_classes, self._depth, meta_node_num,
-                               double_down_channel, use_softmax_head, supervision)
+        self.net = SenasSearch(input_c, c, num_classes, self._depth, meta_node_num, double_down_channel, supervision)
 
         if 'cuda' == str(device.type) and multi_gpus:
             device_ids = list(range(torch.cuda.device_count()))
