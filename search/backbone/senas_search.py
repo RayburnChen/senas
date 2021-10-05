@@ -61,7 +61,7 @@ class SenasSearch(nn.Module):
             up_f = []
             up_block = nn.ModuleList()
             for j in range(self._depth - i):
-                _, _, head_curr, _ = num_filters[i - 1][j]
+                _, _, head_curr, _ = num_filters[0][j]
                 _, _, head_down, _ = num_filters[i - 1][j + 1]
                 head_in0 = sum([num_filters[k][j][2] for k in range(i)])  # up_cell._multiplier
                 head_in1 = head_down  # up_cell._multiplier
