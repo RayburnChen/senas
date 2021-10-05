@@ -14,7 +14,7 @@ searching:
     batch_size: 9
     report_freq: 10
     n_workers: 2
-    alpha_begin: 15
+    alpha_begin: 10
     max_patience: 10
     gpu: True
     multi_gpus: False
