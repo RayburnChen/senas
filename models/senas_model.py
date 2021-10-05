@@ -173,7 +173,7 @@ class SenasModel(BaseNet):
                     ot = None
                     cell_out[i + j] = ot
                 else:
-                    ides = range(j, i + j)
+                    ides = list(range(j, i + j))
                     in0 = torch.cat([cell_out[idx] for idx in ides if cell_out[idx] is not None], dim=1)
                     in1 = cell_out[i + j]
                     cell = self.blocks[i][j]

@@ -145,17 +145,17 @@ def build_activation(inplace=True):
 
 
 def build_rectify(c_in, c_ot, cell_type):
-    act = build_activation()
+    act = build_activation(False)
     if cell_type == 'up':
         if c_in == c_ot:
-            return nn.Sequential(nn.Upsample(scale_factor=2, mode='bilinear', align_corners=False), build_norm(c_ot, True), act)
+            return nn.Sequential(act, nn.Upsample(scale_factor=2, mode='bilinear', align_corners=False), build_norm(c_ot, True))
         else:
-            return nn.Sequential(nn.ConvTranspose2d(c_in, c_ot, kernel_size=1, stride=2, output_padding=1, bias=False), build_norm(c_ot, True), act)
+            return nn.Sequential(act, nn.ConvTranspose2d(c_in, c_ot, kernel_size=1, stride=2, output_padding=1, bias=False), build_norm(c_ot, True))
     else:
         if c_in == c_ot:
-            return nn.Sequential(nn.AvgPool2d(3, stride=2, padding=1, count_include_pad=False), build_norm(c_ot, True), act)
+            return nn.Sequential(act, nn.AvgPool2d(3, stride=2, padding=1, count_include_pad=False), build_norm(c_ot, True))
         else:
-            return nn.Sequential(nn.Conv2d(c_in, c_ot, kernel_size=1, stride=2, bias=False), build_norm(c_ot, True), act)
+            return nn.Sequential(act, nn.Conv2d(c_in, c_ot, kernel_size=1, stride=2, bias=False), build_norm(c_ot, True))
 
 
 class ZeroOp(nn.Module):
@@ -213,14 +213,14 @@ class ShrinkBlock(nn.Module):
 
     def __init__(self, c_in, c_ot):
         super().__init__()
+        self.act = build_activation(False)
         self.conv = nn.Conv2d(c_in, c_ot, kernel_size=3, padding=1, bias=False)
         self.norm = build_norm(c_ot, True)
-        self.act = build_activation()
 
     def forward(self, x):
-        out = self.conv(x)
+        out = self.act(x)
+        out = self.conv(out)
         out = self.norm(out)
-        out = self.act(out)
         return out
 
 
