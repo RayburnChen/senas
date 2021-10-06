@@ -44,7 +44,7 @@ class Cell(nn.Module):
 
     def __init__(self, meta_node_num, double_down, c_in0, c_in1, c_out, cell_type):
         super(Cell, self).__init__()
-        self.k = 4
+        self.k = 1
         self._meta_node_num = meta_node_num
         self._input_num = 2
 

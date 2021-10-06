@@ -179,13 +179,13 @@ class AdapterBlock(nn.Module):
         self.module = module
         if self.c_in != self.c_ot:
             self.conv = nn.Conv2d(c_in, c_ot, kernel_size=1, bias=False)
-            self.norm = build_norm(c_ot, True)
+        self.norm = build_norm(c_ot, True)
 
     def forward(self, x):
         out = self.module(x)
         if self.c_in != self.c_ot:
             out = self.conv(out)
-            out = self.norm(out)
+        out = self.norm(out)
         return out
 
 
