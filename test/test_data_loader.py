@@ -2,7 +2,7 @@ import test
 import sys
 import torch.utils.data as tdata
 sys.path.append('..')
-from util.prim_ops_set import *
+from util.operations import *
 from util.datasets import get_dataset
 import torchvision.transforms as transform
 import matplotlib.pyplot as plt

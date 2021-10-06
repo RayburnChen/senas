@@ -1,5 +1,5 @@
 from torch.functional import F
-from util.prim_ops_set import *
+from util.operations import *
 
 
 class MixedOp(nn.Module):

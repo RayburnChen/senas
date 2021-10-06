@@ -2,7 +2,7 @@ import torch
 from torch.functional import F
 
 from models import BasicBlock
-from util.prim_ops_set import *
+from util.operations import *
 from util.genotype import *
 from search.backbone.cell import Cell
 

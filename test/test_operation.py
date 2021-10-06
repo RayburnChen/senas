@@ -1,6 +1,6 @@
 import unittest
 import time
-from util.prim_ops_set import *
+from util.operations import *
 
 
 class TestOperation(unittest.TestCase):

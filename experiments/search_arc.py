@@ -186,9 +186,6 @@ class SearchNetwork(object):
 
         for epoch in range(self.start_epoch, self.cfg['searching']['epoch']):
             self.epoch = epoch
-
-            # update scheduler
-            self.scheduler.step()
             self.logger.info('Epoch %d / %d lr %e', self.epoch,
                              self.cfg['searching']['epoch'], self.scheduler.get_last_lr()[-1])
 
@@ -294,6 +291,8 @@ class SearchNetwork(object):
 
             # Update the network parameters
             self.model_optimizer.step()
+            # update scheduler
+            self.scheduler.step()
         _, _, dice = self.metric_train.get()
         self.writer.add_scalar('Train/Loss', self.train_loss_meter.avg, self.epoch)
         self.writer.add_scalar('Train/dice', dice, self.epoch)

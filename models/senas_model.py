@@ -1,5 +1,5 @@
 from util.gpu_memory_log import gpu_memory_log
-from util.prim_ops_set import *
+from util.operations import *
 from .base import BaseNet
 from .resnet import BasicBlock
 

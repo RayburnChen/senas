@@ -228,9 +228,6 @@ class Network(object):
 
         for epoch in range(self.start_epoch, self.cfg['training']['epoch']):
             self.epoch = epoch
-
-            self.scheduler.step()
-
             self.logger.info('=> Epoch {}, lr {}'.format(self.epoch, self.scheduler.get_last_lr()[-1]))
 
             # train and search the model
@@ -326,6 +323,8 @@ class Network(object):
 
             # Update the network parameters
             self.model_optimizer.step()
+            # update scheduler
+            self.scheduler.step()
 
         # save in tensorboard scalars
         _, _, dice = self.metric_train.get()
