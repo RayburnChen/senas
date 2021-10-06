@@ -8,14 +8,17 @@ class MixedOp(nn.Module):
         super(MixedOp, self).__init__()
         self._ops = nn.ModuleList()
         self._op_type = op_type
+        # note:
+        # c_part cannot be too small when the search space is complex
+        # or the init_channels is already small
         self.k = 1
         self.c_out = c_out
-        self.c_part = c_out // self.k
+        self.c_part = int(c_out // self.k)
 
         if self.c_out - self.c_part > 0:
             if OpType.DOWN == self._op_type:
                 # down cell needs pooling before concat
-                self.skip = nn.AvgPool2d(3, stride=2, padding=1, count_include_pad=False)
+                self.skip = nn.MaxPool2d(2, stride=2)
             elif OpType.UP == self._op_type:
                 # up cell needs interpolate before concat
                 self.skip = nn.Upsample(scale_factor=2, mode='bilinear', align_corners=False)
@@ -23,20 +26,27 @@ class MixedOp(nn.Module):
                 self.skip = nn.Identity()
 
         for pri in self._op_type.value['ops']:
-            op = OPS[pri](c_in, self.c_part, self._op_type, dp=0)
+            op = OPS[pri](self.c_part, self.c_part, self._op_type, dp=0)
             self._ops.append(op)
 
     def forward(self, x, weights_norm, weights_chg):
         # weights: i * 1 where i is the number of normal primitive operations
         # weights: j * 1 where j is the number of up primitive operations
         # weights: k * 1 where k is the number of down primitive operations
+
+        # < 1/k
+        x_part_1 = x[:, :  self.c_part, :, :]
+
         if OpType.NORM == self._op_type:
-            out = sum(w * op(x) for w, op in zip(weights_norm, self._ops))
+            out = sum(w * op(x_part_1) for w, op in zip(weights_norm, self._ops))
         else:
-            out = sum(w * op(x) for w, op in zip(weights_chg, self._ops))
+            out = sum(w * op(x_part_1) for w, op in zip(weights_chg, self._ops))
 
         if self.c_out - self.c_part > 0:
-            out = torch.cat([out, self.skip(x[:, self.c_part - self.c_out:, :, :])], dim=1)
+            # > 1/k
+            x_part_2 = x[:, -self.c_out + self.c_part:, :, :]
+            out = torch.cat([out, self.skip(x_part_2)], dim=1)
+            out = channel_shuffle(out, self.k)
         return out
 
 
@@ -44,6 +54,9 @@ class Cell(nn.Module):
 
     def __init__(self, meta_node_num, double_down, c_in0, c_in1, c_out, cell_type):
         super(Cell, self).__init__()
+        # note:
+        # c_part cannot be too small when the search space is complex
+        # or the init_channels is already small
         self.k = 1
         self._meta_node_num = meta_node_num
         self._input_num = 2
@@ -52,11 +65,11 @@ class Cell(nn.Module):
             # Note: the s0 size is twice than s1!
             self.preprocess0 = build_rectify(c_in0, c_in1, cell_type)
             c_part = c_out // double_down
-            c_part = c_part // self.k
+            c_part = int(c_part // self.k)
         else:
             self.preprocess0 = ShrinkBlock(c_in0, c_in1)
             c_part = c_out
-            c_part = c_part // self.k
+            c_part = int(c_part // self.k)
         self.preprocess1 = build_activation(False)
         self.node_activation = build_activation()
 
