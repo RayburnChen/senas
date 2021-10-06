@@ -101,6 +101,7 @@ class SenasSearch(nn.Module):
                 in0 = torch.cat(
                     [cell_out[ides[0]]] + [cell_out[ides[k]] * gamma[idx][0] + cell_out[ides[k + 1]] * gamma[idx][1] for
                                            k, idx in enumerate(gamma_ides)], dim=1)
+                # in0 = torch.cat([cell_out[idx] for idx in ides], dim=1)
                 in1 = cell_out[i + j]
                 cell = self.blocks[i][j]
                 ot = cell(in0, in1, weights_up_norm, weights_up, betas_up)
