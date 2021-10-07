@@ -15,7 +15,7 @@ searching:
     report_freq: 10
     n_workers: 2
     alpha_begin: 10
-    max_patience: 10
+    max_patience: 6
     gpu: True
     multi_gpus: False
     sharing_normal: False
