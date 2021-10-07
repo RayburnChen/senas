@@ -10,7 +10,7 @@ data:
 searching:
     init_channels: 32
     depth: 5
-    epoch: 200
+    epoch: 100
     batch_size: 9
     report_freq: 10
     n_workers: 2
