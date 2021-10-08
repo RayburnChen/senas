@@ -9,8 +9,8 @@ class MixedOp(nn.Module):
         self._ops = nn.ModuleList()
         self._op_type = op_type
         # note:
-        # c_part cannot be too small when the search space is complex
-        # or the init_channels is already small
+        # this k is a parameter of PC-DARTS
+        # the k parameter of our approach is in the Cell class
         self.k = 1
         self.c_out = c_out
         self.c_part = int(c_out // self.k)
@@ -55,9 +55,10 @@ class Cell(nn.Module):
     def __init__(self, meta_node_num, double_down, c_in0, c_in1, c_out, cell_type):
         super(Cell, self).__init__()
         # note:
-        # c_part cannot be too small when the search space is complex
+        # senas can shrink the channels into 1/k
+        # c_part cannot be too small when the candidate ops are complex
         # or the init_channels is already small
-        self.k = 1
+        self.k = 2
         self._meta_node_num = meta_node_num
         self._input_num = 2
 

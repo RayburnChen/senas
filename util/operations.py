@@ -15,7 +15,7 @@ OPS = {
     'conv_3': lambda c_in, c_ot, op_type, dp: build_ops('conv_3', op_type, c_in, c_ot, dp=dp),
     'se_conv_3': lambda c_in, c_ot, op_type, dp: build_ops('se_conv_3', op_type, c_in, c_ot, dp=dp),
     'dil_3_conv_5': lambda c_in, c_ot, op_type, dp: build_ops('dil_3_conv_5', op_type, c_in, c_ot, dp=dp),
-    'dil_5_conv_5': lambda c_in, c_ot, op_type, dp: build_ops('dil_5_conv_5', op_type, c_in, c_ot, dp=dp),
+    'dil_2_conv_5': lambda c_in, c_ot, op_type, dp: build_ops('dil_2_conv_5', op_type, c_in, c_ot, dp=dp),
     'dep_sep_conv_3': lambda c_in, c_ot, op_type, dp: build_ops('dep_sep_conv_3', op_type, c_in, c_ot, dp=dp),
     'dep_sep_conv_5': lambda c_in, c_ot, op_type, dp: build_ops('dep_sep_conv_5', op_type, c_in, c_ot, dp=dp),
 }
@@ -24,7 +24,7 @@ DownOps = [
     'avg_pool',
     'se_conv_3',
     'dil_3_conv_5',
-    'dil_5_conv_5',
+    'dil_2_conv_5',
     'dep_sep_conv_3',
     'dep_sep_conv_5',
 ]
@@ -33,7 +33,7 @@ UpOps = [
     'up_sample',
     'se_conv_3',
     'dil_3_conv_5',
-    'dil_5_conv_5',
+    'dil_2_conv_5',
     'dep_sep_conv_3',
     'dep_sep_conv_5',
 ]
@@ -42,7 +42,7 @@ NormOps = [
     'identity',
     'none',
     'dil_3_conv_5',
-    'dil_5_conv_5',
+    'dil_2_conv_5',
     'dep_sep_conv_3',
     'dep_sep_conv_5',
 ]
@@ -68,8 +68,8 @@ def build_ops(op_name, op_type: OpType, c_in: Optional[int] = None, c_ot: Option
         return ConvBnSe(c_in, c_ot, kernel_size=3, stride=stride, transpose=use_transpose, output_padding=output_padding, dropout=dp)
     elif op_name == 'dil_3_conv_5':
         return ConvBn(c_in, c_ot, kernel_size=5, stride=stride, transpose=use_transpose, output_padding=output_padding, dilation=3, dropout=dp)
-    elif op_name == 'dil_5_conv_5':
-        return ConvBn(c_in, c_ot, kernel_size=5, stride=stride, transpose=use_transpose, output_padding=output_padding, dilation=5, dropout=dp)
+    elif op_name == 'dil_2_conv_5':
+        return ConvBn(c_in, c_ot, kernel_size=5, stride=stride, transpose=use_transpose, output_padding=output_padding, dilation=2, dropout=dp)
     elif op_name == 'dep_sep_conv_3':
         return DepSepConv(c_in, c_ot, kernel_size=3, stride=stride, transpose=use_transpose, output_padding=output_padding, dropout=dp)
     elif op_name == 'dep_sep_conv_5':
