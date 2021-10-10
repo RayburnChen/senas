@@ -26,7 +26,7 @@ searching:
     train_portion: 0.5
     model_optimizer:
         name: 'sgd'
-        lr: 5.0e-3
+        lr: 1.0e-2
         weight_decay: 3.0e-4
         momentum: 0.9
     arch_optimizer:
