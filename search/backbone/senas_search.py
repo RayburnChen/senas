@@ -78,7 +78,11 @@ class SenasSearch(nn.Module):
         c_in1 = num_filters[-1][0][2]
         self.head_block.append(Head(meta_node_num, double_down, c_in0, c_in1, nclass))
 
-    def forward(self, x, weights_down_norm, weights_up_norm, weights_down, weights_up, betas_down, betas_up, gamma):
+    def forward(self, x, alpha_dn_nm, alpha_up_nm, alpha_dn, alpha_up, beta_dn, beta_up, gamma):
+        # alpha_dn_nm is params for down cell normal ops
+        # alpha_up_nm is params for up cell normal ops
+        # alpha_dn is params for down cell down ops
+        # alpha_up is params for up cell up ops
         cell_out = []
         for j, cell in enumerate(self.blocks[0]):
             if j == 0:
@@ -88,10 +92,10 @@ class SenasSearch(nn.Module):
                 ot = cell(s0)
                 cell_out.append(ot)
             elif j == 1:
-                ot = cell(s0, cell_out[-1], weights_down_norm, weights_down, betas_down)
+                ot = cell(s0, cell_out[-1], alpha_dn_nm, alpha_dn, beta_dn)
                 cell_out.append(ot)
             else:
-                ot = cell(cell_out[-2], cell_out[-1], weights_down_norm, weights_down, betas_down)
+                ot = cell(cell_out[-2], cell_out[-1], alpha_dn_nm, alpha_dn, beta_dn)
                 cell_out.append(ot)
 
         for j in reversed(range(self._depth - 1)):
@@ -104,13 +108,13 @@ class SenasSearch(nn.Module):
                 # in0 = torch.cat([cell_out[idx] for idx in ides], dim=1)
                 in1 = cell_out[i + j]
                 cell = self.blocks[i][j]
-                ot = cell(in0, in1, weights_up_norm, weights_up, betas_up)
+                ot = cell(in0, in1, alpha_up_nm, alpha_up, beta_up)
                 cell_out[i + j] = ot
 
         if self._supervision:
-            return [self.head_block[-1](s0, ot, weights_up_norm, weights_up, betas_up) for ot in cell_out]
+            return [self.head_block[-1](s0, ot, alpha_up_nm, alpha_up, beta_up) for ot in cell_out]
         else:
-            return [self.head_block[-1](s0, cell_out[-1], weights_up_norm, weights_up, betas_up)]
+            return [self.head_block[-1](s0, cell_out[-1], alpha_up_nm, alpha_up, beta_up)]
 
 
 class NAS(nn.Module):
@@ -143,54 +147,58 @@ class NAS(nn.Module):
         up_num_ops = len(UpOps)
 
         k = sum(1 for i in range(self._meta_node_num) for n in range(2 + i))  # total number of input node
-        self.alphas_down = nn.Parameter(1e-3 * torch.randn(k, down_num_ops))
+        self.alphas_dn = nn.Parameter(1e-3 * torch.randn(k, down_num_ops))
         self.alphas_up = nn.Parameter(1e-3 * torch.randn(k, up_num_ops))
-        self.alphas_normal_down = nn.Parameter(1e-3 * torch.randn(k, normal_num_ops))
-        self.alphas_normal_up = self.alphas_normal_down if self._use_sharing else nn.Parameter(
+        self.alphas_dn_nm = nn.Parameter(1e-3 * torch.randn(k, normal_num_ops))
+        self.alphas_up_nm = self.alphas_dn_nm if self._use_sharing else nn.Parameter(
             1e-3 * torch.randn(k, normal_num_ops))
 
-        self.betas_down = nn.Parameter(1e-3 * torch.randn(k))
+        self.betas_dn = nn.Parameter(1e-3 * torch.randn(k))
         self.betas_up = nn.Parameter(1e-3 * torch.randn(k))
 
         self.gamma = nn.Parameter(1e-3 * torch.randn(sum(range(self._depth - 1)), 2))
 
+        # alpha_dn_nm is params for down cell normal ops
+        # alpha_up_nm is params for up cell normal ops
+        # alpha_dn is params for down cell down ops
+        # alpha_up is params for up cell up ops
         self._arch_parameters = [
-            self.alphas_down,
+            self.alphas_dn,
             self.alphas_up,
-            self.alphas_normal_down,
-            self.alphas_normal_up,
-            self.betas_down,
+            self.alphas_dn_nm,
+            self.alphas_up_nm,
+            self.betas_dn,
             self.betas_up,
             self.gamma
         ]
 
     def load_params(self, alphas_dict, betas_dict):
-        self.alphas_down = alphas_dict['alphas_down']
+        self.alphas_dn = alphas_dict['alphas_down']
         self.alphas_up = alphas_dict['alphas_up']
-        self.alphas_normal_down = alphas_dict['alphas_normal_down']
-        self.alphas_normal_up = alphas_dict['alphas_normal_up']
-        self.betas_down = betas_dict['betas_down']
+        self.alphas_dn_nm = alphas_dict['alphas_normal_down']
+        self.alphas_up_nm = alphas_dict['alphas_normal_up']
+        self.betas_dn = betas_dict['betas_down']
         self.betas_up = betas_dict['betas_up']
         self._arch_parameters = [
-            self.alphas_down,
+            self.alphas_dn,
             self.alphas_up,
-            self.alphas_normal_down,
-            self.alphas_normal_up,
-            self.betas_down,
+            self.alphas_dn_nm,
+            self.alphas_up_nm,
+            self.betas_dn,
             self.betas_up
         ]
 
     def alphas_dict(self):
         return {
-            'alphas_down': self.alphas_down,
-            'alphas_normal_down': self.alphas_normal_down,
+            'alphas_dn': self.alphas_dn,
+            'alphas_dn_nm': self.alphas_dn_nm,
             'alphas_up': self.alphas_up,
-            'alphas_normal_up': self.alphas_normal_up,
+            'alphas_up_nm': self.alphas_up_nm,
         }
 
     def betas_dict(self):
         return {
-            'betas_down': self.betas_down,
+            'betas_dn': self.betas_dn,
             'betas_up': self.betas_up
         }
 
@@ -203,29 +211,29 @@ class NAS(nn.Module):
         # which is different from down cells (s0 and s1 all need down operation). so when
         # parse a up cell string, the string operations is |_|*|_|...|_|, where * indicate up operation
         # mask1 and mask2 below is convenient to handle it.
-        alphas_normal_down = F.softmax(self.alphas_normal_down, dim=-1).detach().cpu()
-        alphas_down = F.softmax(self.alphas_down, dim=-1).detach().cpu()
-        alphas_normal_up = F.softmax(self.alphas_normal_up, dim=-1).detach().cpu()
+        alphas_dn_nm = F.softmax(self.alphas_dn_nm, dim=-1).detach().cpu()
+        alphas_dn = F.softmax(self.alphas_dn, dim=-1).detach().cpu()
+        alphas_up_nm = F.softmax(self.alphas_up_nm, dim=-1).detach().cpu()
         alphas_up = F.softmax(self.alphas_up, dim=-1).detach().cpu()
-        betas_down = []
+        betas_dn = []
         betas_up = []
         for i in range(self._meta_node_num):
-            offset = len(betas_down)
-            betas_down.append(F.softmax(self.betas_down[offset:offset + 2 + i], dim=-1).detach().cpu())
+            offset = len(betas_dn)
+            betas_dn.append(F.softmax(self.betas_dn[offset:offset + 2 + i], dim=-1).detach().cpu())
             betas_up.append(F.softmax(self.betas_up[offset:offset + 2 + i], dim=-1).detach().cpu())
-        betas_down = torch.cat(betas_down, dim=0)
+        betas_dn = torch.cat(betas_dn, dim=0)
         betas_up = torch.cat(betas_up, dim=0)
 
         k = sum(1 for i in range(self._meta_node_num) for n in range(2 + i))  # total number of input node
         for j in range(k):
-            alphas_normal_down[j, :] = alphas_normal_down[j, :] * betas_down[j].item()
-            alphas_down[j, :] = alphas_down[j, :] * betas_down[j].item()
-            alphas_normal_up[j, :] = alphas_normal_up[j, :] * betas_up[j].item()
+            alphas_dn_nm[j, :] = alphas_dn_nm[j, :] * betas_dn[j].item()
+            alphas_dn[j, :] = alphas_dn[j, :] * betas_dn[j].item()
+            alphas_up_nm[j, :] = alphas_up_nm[j, :] * betas_up[j].item()
             alphas_up[j, :] = alphas_up[j, :] * betas_up[j].item()
 
         geno_parser = GenoParser(self._meta_node_num)
-        gene_down = geno_parser.parse(alphas_normal_down.numpy(), alphas_down.numpy(), cell_type='down')
-        gene_up = geno_parser.parse(alphas_normal_up.numpy(), alphas_up.numpy(), cell_type='up')
+        gene_down = geno_parser.parse(alphas_dn_nm.numpy(), alphas_dn.numpy(), cell_type='down')
+        gene_up = geno_parser.parse(alphas_up_nm.numpy(), alphas_up.numpy(), cell_type='up')
         concat = range(2, self._meta_node_num + 2)
         gamma = F.softmax(self.gamma, dim=-1).detach().cpu()
         idx = torch.topk(gamma[:, 1], len(gamma) // 2, largest=False).indices
@@ -242,35 +250,35 @@ class NAS(nn.Module):
 
     def forward(self, x):
 
-        alphas_down_norm = F.softmax(self.alphas_normal_down, dim=-1)
-        alphas_up_norm = F.softmax(self.alphas_normal_up, dim=-1)
-        alphas_down = F.softmax(self.alphas_down, dim=-1)
+        alphas_dn_nm = F.softmax(self.alphas_dn_nm, dim=-1)
+        alphas_up_nm = F.softmax(self.alphas_up_nm, dim=-1)
+        alphas_dn = F.softmax(self.alphas_dn, dim=-1)
         alphas_up = F.softmax(self.alphas_up, dim=-1)
-        betas_down = []
+        betas_dn = []
         betas_up = []
         for i in range(self._meta_node_num):
-            offset = len(betas_down)
-            betas_down.append(F.softmax(self.betas_down[offset:offset + 2 + i], dim=-1))
+            offset = len(betas_dn)
+            betas_dn.append(F.softmax(self.betas_dn[offset:offset + 2 + i], dim=-1))
             betas_up.append(F.softmax(self.betas_up[offset:offset + 2 + i], dim=-1))
-        betas_down = torch.cat(betas_down, dim=0)
+        betas_dn = torch.cat(betas_dn, dim=0)
         betas_up = torch.cat(betas_up, dim=0)
         gamma = F.softmax(self.gamma, dim=-1)
 
         if len(self.device_ids) == 1:
-            return self.net(x, alphas_down_norm, alphas_up_norm, alphas_down, alphas_up, betas_down, betas_up, gamma)
+            return self.net(x, alphas_dn_nm, alphas_up_nm, alphas_dn, alphas_up, betas_dn, betas_up, gamma)
 
         # scatter x
         xs = nn.parallel.scatter(x, self.device_ids)
         # broadcast weights
-        wnormal_down_copies = broadcast_list(alphas_down_norm, self.device_ids)
-        wnormal_up_copies = broadcast_list(alphas_up_norm, self.device_ids)
-        wdown_copies = broadcast_list(alphas_down, self.device_ids)
-        wup_copies = broadcast_list(alphas_up, self.device_ids)
+        w_dn_nm_copies = broadcast_list(alphas_dn_nm, self.device_ids)
+        w_up_nm_copies = broadcast_list(alphas_up_nm, self.device_ids)
+        w_dn_copies = broadcast_list(alphas_dn, self.device_ids)
+        w_up_copies = broadcast_list(alphas_up, self.device_ids)
 
         # replicate modules
         replicas = nn.parallel.replicate(self.net, self.device_ids)
-        outputs = nn.parallel.parallel_apply(replicas, list(zip(xs, wnormal_down_copies, wnormal_up_copies,
-                                                                wdown_copies, wup_copies)),
+        outputs = nn.parallel.parallel_apply(replicas, list(zip(xs, w_dn_nm_copies, w_up_nm_copies,
+                                                                w_dn_copies, w_up_copies)),
                                              devices=self.device_ids)
 
         return nn.parallel.gather(outputs, self.device_ids[0])

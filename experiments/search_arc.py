@@ -192,11 +192,11 @@ class SearchNetwork(object):
             # get genotype
             genotype = self.model.genotype()
             self.logger.info('genotype = %s', genotype)
-            print('alpha normal_down:', F.softmax(self.model.alphas_normal_down, dim=-1))
-            print('alpha down:', F.softmax(self.model.alphas_down, dim=-1))
-            print('alpha normal_up:', F.softmax(self.model.alphas_normal_up, dim=-1))
+            print('alpha down normal:', F.softmax(self.model.alphas_dn_nm, dim=-1))
+            print('alpha down:', F.softmax(self.model.alphas_dn, dim=-1))
+            print('alpha up normal:', F.softmax(self.model.alphas_up_nm, dim=-1))
             print('alpha up:', F.softmax(self.model.alphas_up, dim=-1))
-            print('betas down:', F.softmax(self.model.betas_down, dim=-1))
+            print('betas down:', F.softmax(self.model.betas_dn, dim=-1))
             print('betas up:', F.softmax(self.model.betas_up, dim=-1))
             print('gamma:', F.softmax(self.model.gamma, dim=-1))
 

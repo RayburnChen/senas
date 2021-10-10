@@ -9,8 +9,8 @@ class MixedOp(nn.Module):
         self._ops = nn.ModuleList()
         self._op_type = op_type
         # note:
-        # this k is a parameter of PC-DARTS
-        # the k parameter of our approach is in the Cell class
+        # this k is a similar parameter as PC-DARTS
+        # the k parameter of Senas is in the Cell class
         self.k = 1
         self.c_out = c_out
         self.c_part = int(c_out // self.k)
@@ -26,21 +26,14 @@ class MixedOp(nn.Module):
                 self.skip = nn.Identity()
 
         for pri in self._op_type.value['ops']:
-            op = OPS[pri](self.c_part, self.c_part, self._op_type, dp=0)
+            op = OPS[pri](c_in, self.c_part, self._op_type, dp=0)
             self._ops.append(op)
 
-    def forward(self, x, weights_norm, weights_chg):
-        # weights: i * 1 where i is the number of normal primitive operations
-        # weights: j * 1 where j is the number of up primitive operations
-        # weights: k * 1 where k is the number of down primitive operations
-
-        # < 1/k
-        x_part_1 = x[:, :  self.c_part, :, :]
-
+    def forward(self, x, alpha_normal, alpha_up_dn):
         if OpType.NORM == self._op_type:
-            out = sum(w * op(x_part_1) for w, op in zip(weights_norm, self._ops))
+            out = sum(w * op(x) for w, op in zip(alpha_normal, self._ops))
         else:
-            out = sum(w * op(x_part_1) for w, op in zip(weights_chg, self._ops))
+            out = sum(w * op(x) for w, op in zip(alpha_up_dn, self._ops))
 
         if self.c_out - self.c_part > 0:
             # > 1/k
@@ -56,8 +49,7 @@ class Cell(nn.Module):
         super(Cell, self).__init__()
         # note:
         # senas can shrink the channels into 1/k
-        # c_part cannot be too small when the candidate ops are complex
-        # or the init_channels is already small
+        # c_part cannot be too small in a challenging task or init_channels is already small
         self.k = 2
         self._meta_node_num = meta_node_num
         self._input_num = 2
@@ -98,24 +90,21 @@ class Cell(nn.Module):
                 self._ops += [op]
 
     def forward(self, in0, in1, weights_norm, weights_chg, betas):
-
-        s0 = self.preprocess0(in0)
-        s1 = self.preprocess1(in1)
-        states = [s0, s1]
+        in0 = self.preprocess0(in0)
+        in1 = self.preprocess1(in1)
+        states = [in0, in1]
         offset = 0
         # offset=0  states=2  _ops=[0,1]
         # offset=2  states=3  _ops=[2,3,4]
         # offset=5  states=4  _ops=[5,6,7,8]
         for i in range(self._meta_node_num):
             # handle the un-consistent dimension
-            tmp_list = []
-            betas_path = betas[offset:(offset + len(states))]
+            edge_beta = betas[offset:(offset + len(states))]
             for j, h in enumerate(states):
-                tmp_list += [
-                    betas_path[j] * self._ops[offset + j](h, weights_norm[offset + j], weights_chg[offset + j])]
-
-            s = self.node_activation(sum(tmp_list))
+                edge_feature = edge_beta[j] * self._ops[offset + j](h, weights_norm[offset + j], weights_chg[offset + j])
+                node_feature = edge_feature if j == 0 else (node_feature + edge_feature)
             offset += len(states)
+            s = self.node_activation(node_feature)
             states.append(s)
 
         return self.post_process(torch.cat(states[-self._meta_node_num:], dim=1))
