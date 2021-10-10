@@ -20,7 +20,7 @@ class Head(nn.Module):
 
 class SenasSearch(nn.Module):
 
-    def __init__(self, in_channels, c, nclass, depth, meta_node_num=3, double_down_channel=True, supervision=False):
+    def __init__(self, in_channels, c, nclass, depth, meta_node_num=3, double_down_channel=False, supervision=False):
         super(SenasSearch, self).__init__()
         self._depth = depth
         self._double_down_channel = double_down_channel

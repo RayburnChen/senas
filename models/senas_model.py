@@ -80,8 +80,7 @@ class Head(nn.Module):
 
 class SenasModel(nn.Module):
 
-    def __init__(self, nclass, in_channels, c=32, depth=5, dropout_prob=0,
-                 supervision=False, genotype=None, double_down_channel=False):
+    def __init__(self, nclass, in_channels, c=32, depth=5, dropout_prob=0, supervision=False, genotype=None, double_down_channel=False):
         super(SenasModel, self).__init__()
         self._depth = depth
         self._double_down_channel = double_down_channel
