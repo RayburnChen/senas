@@ -238,8 +238,11 @@ def broadcast_list(li, device_ids):
 
 
 def weights_init(m):
-    if isinstance(m, torch.nn.Conv2d):
-        torch.nn.init.kaiming_normal_(m.weight)
+    if isinstance(m, torch.nn.BatchNorm2d):
+        torch.nn.init.constant_(m.weight, 1)
+        torch.nn.init.constant_(m.bias, 0)
+    elif isinstance(m, torch.nn.Conv2d) or isinstance(m, torch.nn.ConvTranspose2d):
+        torch.nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
 
 
 def store_images(inputs, predicts, target, dataset='promise12'):
