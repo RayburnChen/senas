@@ -101,7 +101,8 @@ class SearchNetwork(object):
         init_channel = self.cfg['searching']['init_channels']
         depth = self.cfg['searching']['depth']
         supervision = self.cfg['searching']['deep_supervision']
-        meta_node_num = self.args.meta_node_num if self.args.meta_node_num > 0 else self.cfg['searching']['meta_node_num']
+        meta_node_num = self.args.meta_node_num if self.args.meta_node_num > 0 else self.cfg['searching'][
+            'meta_node_num']
         loss_name = self.cfg['searching']['loss']['name']
 
         # Setup loss function

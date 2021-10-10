@@ -97,25 +97,11 @@ class Network(object):
         kwargs = {'num_workers': self.cfg['training']['n_workers'], 'pin_memory': True}
 
         # Split val dataset
-        if self.cfg['data']['dataset'] in ['bladder', 'chaos', 'ultrasound_nerve']:
-            num_train = len(trainset)
-            indices = list(range(num_train))
-            split = int(np.floor(0.8 * num_train))
-            self.logger.info('split training data : 0.8')
-            self.train_queue = data.DataLoader(trainset, batch_size=self.batch_size,
-                                               sampler=torch.utils.data.sampler.SubsetRandomSampler(indices[:split]),
-                                               **kwargs)
+        self.train_queue = data.DataLoader(trainset, batch_size=self.batch_size,
+                                           drop_last=True, shuffle=True, **kwargs)
 
-            self.valid_queue = data.DataLoader(trainset, batch_size=self.batch_size,
-                                               sampler=torch.utils.data.sampler.SubsetRandomSampler(
-                                                   indices[split:num_train]),
-                                               **kwargs)
-        else:
-            self.train_queue = data.DataLoader(trainset, batch_size=self.batch_size,
-                                               drop_last=True, shuffle=True, **kwargs)
-
-            self.valid_queue = data.DataLoader(valset, batch_size=self.batch_size,
-                                               drop_last=False, shuffle=False, **kwargs)
+        self.valid_queue = data.DataLoader(valset, batch_size=self.batch_size,
+                                           drop_last=False, shuffle=False, **kwargs)
 
     def _init_model(self):
 
@@ -278,8 +264,8 @@ class Network(object):
         self.writer.export_scalars_to_json(self.save_tbx_log + "/all_scalars.json")
         self.writer.close()
         self.logger.info('Best loss {}, pixAcc {}, mIoU {}, dice {}'.format(
-                self.best_loss, self.best_pixAcc, self.best_mIoU, self.best_dice
-            ))
+            self.best_loss, self.best_pixAcc, self.best_mIoU, self.best_dice
+        ))
         self.logger.info('Cost time: {}'.format(calc_time(self.dur_time + time.time() - run_start)))
         self.logger.info('Log dir in : {}'.format(self.save_path))
 
@@ -343,7 +329,7 @@ class Network(object):
 
                 if step % self.cfg['training']['report_freq'] == 0:
                     self.logger.info('Val loss %03d %e | epoch [%d] / [%d]', step,
-                                 self.val_loss_meter.mloss(), self.epoch, self.cfg['training']['epoch'])
+                                     self.val_loss_meter.mloss(), self.epoch, self.cfg['training']['epoch'])
                     pixAcc, mIoU, dice = self.metric_val.get()
 
                     self.logger.info('Val pixAcc: {}, mIoU: {}, dice: {}'.format(pixAcc, mIoU, dice))
@@ -406,5 +392,3 @@ class Network(object):
 if __name__ == '__main__':
     train_network = Network()
     train_network.run()
-
-
