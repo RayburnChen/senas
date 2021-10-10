@@ -136,7 +136,7 @@ class SearchNetwork(object):
         self.logger.info("Using model optimizer {}".format(self.model_optimizer))
 
         self.scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(self.model_optimizer,
-                                                                    self.cfg['searching']['epoch'], eta_min=1.0e-3)
+                                                                    self.cfg['searching']['epoch'])
 
         # Setup optimizer, lr_scheduler and loss function for architecture
         optimizer_cls2 = get_optimizer(self.cfg, phase='searching', optimizer_type='arch_optimizer')

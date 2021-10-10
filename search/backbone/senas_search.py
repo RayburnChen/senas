@@ -124,6 +124,8 @@ class NAS(nn.Module):
         self._depth = depth
 
         self.net = SenasSearch(input_c, c, num_classes, self._depth, meta_node_num, double_down_channel, supervision)
+        # init weight using hekming methods
+        self.net.apply(weights_init)
 
         if 'cuda' == str(device.type) and multi_gpus:
             device_ids = list(range(torch.cuda.device_count()))

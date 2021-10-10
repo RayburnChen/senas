@@ -127,10 +127,6 @@ class Network(object):
         self.criterion = criterion.to(self.device)
         self.logger.info("Using loss {}".format(loss_name))
 
-        self.show_dice_coeff = False
-        if self.cfg['data']['dataset'] in ['bladder', 'chaos', 'ultrasound_nerve', 'promise12']:
-            self.show_dice_coeff = True
-
         # Setup Model
         init_channels = self.cfg['training']['init_channels']
         if len(self.args.genotype) > 0:
@@ -292,11 +288,10 @@ class Network(object):
         tbar = tqdm(self.train_queue)
         for step, (input, target) in enumerate(tbar):
 
-            self.model_optimizer.zero_grad()
-
             input = input.cuda(self.device)
             target = target.cuda(self.device)
 
+            self.model_optimizer.zero_grad()
             predicts = self.model(input)
 
             # self.logger.info('GPU memory total:{}, reserved:{}, allocated:{}, waiting:{}'.format(*gpu_memory()))
