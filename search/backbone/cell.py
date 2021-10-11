@@ -50,7 +50,7 @@ class Cell(nn.Module):
         # note:
         # senas can shrink the channels into 1/k
         # c_part cannot be too small in a challenging task or init_channels is already small
-        self.k = 2
+        self.k = 4
         self._meta_node_num = meta_node_num
         self._input_num = 2
 
