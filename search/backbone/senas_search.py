@@ -240,7 +240,7 @@ class NAS(nn.Module):
         gamma = gamma.argmax(1).tolist()
         gamma = [g if i not in idx else 0 for i, g in enumerate(gamma)]
         gamma_path = [gamma[sum(range(i)): sum(range(i)) + i] for i in range(1, self._depth - 1)]
-        gamma_path = sum([g[:g.index(1)] + [1] * len(g[g.index(1):]) if i in g else g for g in gamma_path], [])
+        gamma_path = sum([(g[:g.index(1)] + [1] * len(g[g.index(1):])) if (1 in g) else g for g in gamma_path], [])
         geno_type = Genotype(
             down=gene_down, down_concat=concat,
             up=gene_up, up_concat=concat,
