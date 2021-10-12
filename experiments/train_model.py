@@ -304,9 +304,9 @@ class Network(object):
 
             # Update the network parameters
             self.model_optimizer.step()
-            # update scheduler
-            self.scheduler.step()
 
+        # update scheduler
+        self.scheduler.step()
         # save in tensorboard scalars
         _, _, dice = self.metric_train.get()
         self.writer.add_scalar('Train/loss', self.train_loss_meter.mloss(), self.epoch)
