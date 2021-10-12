@@ -11,7 +11,7 @@ def plot(genotype, filename, format='pdf', directory="./cell_visualize"):
                        penwidth='2'),
         engine='dot'
     )
-    g.body.extend(['randkdir=LR'])
+    g.body.extend(['rankdir=LR'])
 
     g.node('c_{k-2}', fillcolor='darkseagreen2')
     g.node('c_{k-1}', fillcolor='darkseagreen2')
