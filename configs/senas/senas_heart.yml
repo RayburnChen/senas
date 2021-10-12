@@ -42,7 +42,7 @@ training:
     geno_type: senas
     init_channels: 32
     depth: 5
-    epoch: 1800
+    epoch: 2000
     batch_size: 12
     report_freq: 10
     n_workers: 2
@@ -50,7 +50,7 @@ training:
     double_down_channel: False
     deep_supervision: False
     grad_clip: 5
-    max_patience: 400
+    max_patience: 500
     model_optimizer:
         name: 'sgd'
         lr: 6.0e-3
