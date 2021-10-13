@@ -16,7 +16,7 @@ import torchvision.transforms as transform
 sys.path.append('..')
 from util.loss.loss import SegmentationLosses, MultiSegmentationLosses
 from util.datasets import get_dataset, datasets
-from util.utils import get_logger, save_checkpoint, gpu_memory, complexity_info
+from util.utils import get_logger, save_checkpoint, gpu_memory, complexity_info, stat_info
 from util.utils import calc_time
 from util.utils import get_gpus_memory_info, calc_parameters_count
 from util.optimizers import get_optimizer
@@ -125,6 +125,7 @@ class SearchNetwork(object):
                 self.logger.info('gpu device = %d' % self.device_id)
                 torch.cuda.set_device(self.device)
 
+        # stat_info(model, (1, 256, 256))
         self.model = model.to(self.device)
         self.logger.info('param size = %fMB', calc_parameters_count(model))
 
