@@ -151,7 +151,6 @@ class Network(object):
 
         self.model_optimizer = optimizer_cls(self.model.parameters(), **optimizer_params)
         self.logger.info("Using model optimizer {}".format(self.model_optimizer))
-        # self.logger.info('Computational complexity:{}, Number of parameters:{}'.format(*complexity_info(self.model, (1, 256, 256))))
 
     def _check_resume(self):
         self.dur_time = 0
@@ -179,14 +178,8 @@ class Network(object):
         scheduler_params = {k: v for k, v in self.cfg['training']['lr_schedule'].items()}
         if 'max_iter' in self.cfg['training']['lr_schedule']:
             scheduler_params['max_iter'] = self.cfg['training']['epoch']
-            # Note: For step in train epoch !!!!  must use the value below
-            # scheduler_params['max_iter'] = len(self.train_queue) * self.cfg['training']['epoch'] \
-            #                                // self.cfg['training']['batch_size']
         if 'T_max' in self.cfg['training']['lr_schedule']:
             scheduler_params['T_max'] = self.cfg['training']['epoch']
-            # Note: For step in train epoch !!!!  must use the value below
-            # scheduler_params['T_max'] = len(self.train_queue) * self.cfg['training']['epoch'] \
-            #                                // self.cfg['training']['batch_size']
 
         scheduler_params['last_epoch'] = -1 if self.start_epoch == 0 else self.start_epoch
         self.scheduler = get_scheduler(self.model_optimizer, scheduler_params)
