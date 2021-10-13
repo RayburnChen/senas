@@ -24,6 +24,7 @@ from PIL import Image
 from models import geno_searched
 from utils.crf import dense_crf
 
+
 class TestNetwork(object):
     def __init__(self):
         self._init_configure()

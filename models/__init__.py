@@ -71,7 +71,7 @@ def get_segmentation_model(name, **kwargs):
         'senas': senas,
         'unet': unet,
         'unet_plus_plus': unet_plus_plus,
-        'deeplab_v3': deeplab_v3_plus,
+        'deeplab_v3_plus': deeplab_v3_plus,
         'fpn': fpn,
         'linknet': linknet,
         'manet': manet,
