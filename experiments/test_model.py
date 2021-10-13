@@ -12,17 +12,17 @@ from torch.utils import data
 import torch.backends.cudnn as cudnn
 
 sys.path.append('..')
-from util.loss.loss import SegmentationLosses
-from util.datasets import get_dataset
-from util.utils import get_logger, store_images, resize_pred_to_val
-from util.utils import get_gpus_memory_info, calc_parameters_count, create_exp_dir
-from util.challenge.promise12.store_test_seg import predict_test
+from utils.loss.loss import SegmentationLosses
+from utils.datasets import get_dataset
+from utils.utils import get_logger, store_images, resize_pred_to_val
+from utils.utils import get_gpus_memory_info, calc_parameters_count, create_exp_dir
+from utils.challenge.promise12.store_test_seg import predict_test
 from models import get_segmentation_model
-from util.challenge.promise12.metrics import biomedical_image_metric, numpy_dice
-from util.metrics import *
+from utils.challenge.promise12.metrics import biomedical_image_metric, numpy_dice
+from utils.metrics import *
 from PIL import Image
 from models import geno_searched
-from util.crf import dense_crf
+from utils.crf import dense_crf
 
 class TestNetwork(object):
     def __init__(self):

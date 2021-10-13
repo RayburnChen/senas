@@ -3,8 +3,8 @@ import sys
 import os
 import platform
 
-from util import visualize
-from util.genotype import Genotype
+from utils import visualize
+from utils.genotype import Genotype
 
 
 def main(format):

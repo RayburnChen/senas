@@ -1,7 +1,4 @@
-from util.gpu_memory_log import gpu_memory_log
-from util.operations import *
-from .base import BaseNet
-from .resnet import BasicBlock
+from utils.operations import *
 
 
 class BuildCell(nn.Module):

@@ -9,19 +9,17 @@ import argparse
 from tqdm import tqdm
 import torch.nn as nn
 from torch.utils import data
-import torch.nn.functional as F
 import torch.backends.cudnn as cudnn
-import torchvision.transforms as transform
 
 sys.path.append('..')
-from util.loss.loss import SegmentationLosses, MultiSegmentationLosses
-from util.datasets import get_dataset, datasets
-from util.utils import get_logger, save_checkpoint, gpu_memory, complexity_info, stat_info
-from util.utils import calc_time
-from util.utils import get_gpus_memory_info, calc_parameters_count
-from util.optimizers import get_optimizer
-from util.metrics import *
-from search.backbone.senas_search import NAS, Architecture
+from utils.loss.loss import SegmentationLosses, MultiSegmentationLosses
+from utils.datasets import get_dataset
+from utils.utils import get_logger, save_checkpoint, gpu_memory
+from utils.utils import calc_time
+from utils.utils import get_gpus_memory_info, calc_parameters_count
+from utils.optimizers import get_optimizer
+from utils.metrics import *
+from search.senas_search import NAS, Architecture
 
 from tensorboardX import SummaryWriter
 

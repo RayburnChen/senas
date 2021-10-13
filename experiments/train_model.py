@@ -12,19 +12,19 @@ from torch.utils import data
 import torch.backends.cudnn as cudnn
 
 sys.path.append('..')
-from util.loss.loss import SegmentationLosses, MultiSegmentationLosses
-from util.datasets import get_dataset
-from util.utils import get_logger, save_checkpoint, calc_time, store_images, gpu_memory, complexity_info, stat_info
-from util.utils import weights_init
-from util.utils import get_gpus_memory_info, calc_parameters_count
-from util.schedulers import get_scheduler
-from util.optimizers import get_optimizer
-from util.challenge.promise12.store_test_seg import predict_test
-from util.metrics import *
+from utils.loss.loss import SegmentationLosses, MultiSegmentationLosses
+from utils.datasets import get_dataset
+from utils.utils import get_logger, save_checkpoint, calc_time, store_images, gpu_memory, complexity_info, stat_info
+from utils.utils import weights_init
+from utils.utils import get_gpus_memory_info, calc_parameters_count
+from utils.schedulers import get_scheduler
+from utils.optimizers import get_optimizer
+from utils.challenge.promise12.store_test_seg import predict_test
+from utils.metrics import *
 from models import get_segmentation_model
 import models.geno_searched as geno_types
-from util import genotype
-from util.gpu_memory_log import gpu_memory_log
+from utils import genotype
+from utils.gpu_memory_log import gpu_memory_log
 from tensorboardX import SummaryWriter
 
 
