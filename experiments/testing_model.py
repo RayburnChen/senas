@@ -90,7 +90,9 @@ class RunNetwork(object):
         self.batch_size = self.cfg['training']['batch_size']
         kwargs = {'num_workers': self.cfg['training']['n_workers'], 'pin_memory': True}
 
-        # Original data no split val dataset
+        self.train_queue = data.DataLoader(self.trainset, batch_size=self.batch_size, drop_last=False, shuffle=False,
+                                           **kwargs)
+
         self.valid_queue = data.DataLoader(self.valset, batch_size=self.batch_size, drop_last=False, shuffle=False,
                                            **kwargs)
 
@@ -197,12 +199,15 @@ class RunNetwork(object):
         if not os.path.exists(self.save_image_path):
             os.makedirs(self.save_image_path)
 
-        if len(self.valid_queue) != 0:
-            self.logger.info('Begin valid set evaluation')
-            self.testing(self.valid_queue, split='val', path=self.save_image_path)
+        if len(self.train_queue) != 0:
+            self.logger.info('Begin train set evaluation')
+            self.testing(self.train_queue, split='train', path=self.save_image_path)
+        # if len(self.valid_queue) != 0:
+        #     self.logger.info('Begin valid set evaluation')
+        #     self.testing(self.valid_queue, split='val', path=self.save_image_path)
         # if len(self.testing_queue) != 0:
         #     self.logger.info('Begin testing set evaluation')
-        #     self.testing(self.testing_queue, split='testing', desc='images')
+        #     self.testing(self.testing_queue, split='testing', path=self.save_image_path)
         self.logger.info('Evaluation done!')
 
 
