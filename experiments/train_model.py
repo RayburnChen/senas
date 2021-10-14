@@ -46,7 +46,6 @@ class Network(object):
                             help='Configuration file to use')
         parser.add_argument('--model', nargs='?', type=str, default='senas', help='Model to train and evaluation')
         parser.add_argument('--ft', action='store_true', default=False, help='fine tuning on a different dataset')
-        parser.add_argument('--warm', nargs='?', type=int, default=0, help='warm up from pre epoch')
         parser.add_argument('--genotype', nargs='?', type=str, default='', help='Model architecture')
         parser.add_argument('--loss', nargs='?', type=str, default='', help='Loss function')
         parser.add_argument('--depth', nargs='?', type=int, default=-1, help='Loss function')
