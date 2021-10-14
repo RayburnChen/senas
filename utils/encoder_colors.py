@@ -16,6 +16,8 @@ def get_mask_pallete(npimg, dataset='detail', channel=3):
                      'chaos', 'ultrasound_nerve',
                      'promise12', 'camvid'):
         out_img.putpalette(vocpallete)
+    else:
+        out_img.putpalette(vocpallete)
     return out_img.convert("RGB") if channel==3 else out_img
 
 def _get_voc_pallete(num_cls):
