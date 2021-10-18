@@ -7,6 +7,7 @@ from .camvid import CamVid
 from .chaos import CHAOS
 from .coco import COCOSegmentation
 from .heart import Heart
+from .hippo import Hippo
 from .minc import MINCDataset
 from .monusac import MoNuSAC
 from .pancreas import Pancreas
@@ -34,6 +35,7 @@ datasets = {
     'heart': Heart,
     'pancreas': Pancreas,
     'spleen': Spleen,
+    'hippo': Hippo,
 }
 
 acronyms = {
@@ -54,6 +56,7 @@ acronyms = {
     'heart': 'heart',
     'pancreas': 'pancreas',
     'spleen': 'spleen',
+    'hippo': 'hippo',
 }
 
 dir = '../data/imgseg/'

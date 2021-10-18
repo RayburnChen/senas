@@ -2,7 +2,7 @@ seed: 0
 model:
     arch: senas
 data:
-    dataset: monusac
+    dataset: hippo
     train_split: train_aug
     split: val
     img_rows: 'same'
@@ -42,7 +42,7 @@ training:
     geno_type: senas
     init_channels: 32
     depth: 5
-    epoch: 3000
+    epoch: 2500
     batch_size: 12
     report_freq: 10
     n_workers: 2
