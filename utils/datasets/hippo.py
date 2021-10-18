@@ -19,8 +19,8 @@ class Hippo(BaseDataset):
     BASE_DIR, NUM_CLASS, CROP_SIZE = ('Task04_Hippocampus/', 2, 32)
     IN_CHANNELS = 1
     CLASS_WEIGHTS = None
-    mean = [0.64954144]
-    std = [0.26607648]
+    mean = [0.6522593]
+    std = [0.26355466]
 
     def __init__(self, root, split='train', mode=None):
         super(Hippo, self).__init__(root, split, mode, norm={'mu': self.mean, 'std': self.std})
@@ -129,7 +129,9 @@ class Hippo(BaseDataset):
         for i in range(img.shape[-1]):
             img_arr = img.dataobj[:, :, i]
             if is_label:
-                img_arr = 255 * img_arr.astype('int')
+                img_arr = img_arr.astype('int')
+                img_arr[img_arr == 2] = 1
+                img_arr = 255 * img_arr
             im = Image.fromarray(img_arr).convert("L")
             im.save(os.path.join(write_path, str(i)+'.png'), format="png")
 
