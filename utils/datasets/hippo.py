@@ -16,11 +16,11 @@ from PIL import Image
 
 class Hippo(BaseDataset):
 
-    BASE_DIR, NUM_CLASS, CROP_SIZE = ('Task04_Hippocampus/', 2, 32)
+    BASE_DIR, NUM_CLASS, CROP_SIZE = ('Task04_Hippocampus/', 2, 64)
     IN_CHANNELS = 1
     CLASS_WEIGHTS = None
-    mean = [0.6522593]
-    std = [0.26355466]
+    mean = [0.79002064]
+    std = [0.14168018]
 
     def __init__(self, root, split='train', mode=None):
         super(Hippo, self).__init__(root, split, mode, norm={'mu': self.mean, 'std': self.std})
@@ -29,7 +29,7 @@ class Hippo(BaseDataset):
             RandomTranslate(offset=(0.2, 0.1)),
             RandomVerticallyFlip(),
             RandomHorizontallyFlip(),
-            RandomElasticTransform(alpha=1.5, sigma=0.07),
+            # RandomElasticTransform(alpha=1.5, sigma=0.07),
         ])
         base_path = os.path.join(self.root, self.BASE_DIR)
         image_path = os.path.join(base_path, 'imagesTr')
