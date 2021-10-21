@@ -170,12 +170,12 @@ class RunNetwork(object):
                         tbar.set_description('loss: %.6f, pixAcc: %.3f, mIoU: %.6f, dice: %.6f'
                                              % (self.loss_meter.mloss(), pixAcc, mIoU, dice))
 
-                    # N = predicts[-1].shape[0]
-                    # for i in range(N):
-                    #     img = Image.fromarray(
-                    #         (torch.argmax(predicts[-1].cpu(), 1)[i] * 255).numpy().astype(np.uint8))
-                    #     file_name = str(step) + '_' + str(i) + '_mask.png'
-                    #     img.save(os.path.join(path, file_name), format="png")
+                    N = predicts[-1].shape[0]
+                    for i in range(N):
+                        img = Image.fromarray(
+                            (torch.argmax(predicts[-1].cpu(), 1)[i] * 255).numpy().astype(np.uint8))
+                        file_name = str(step) + '_' + str(i) + '_mask.png'
+                        img.save(os.path.join(path, file_name), format="png")
 
                 pixAcc, mIoU, dice = self.metric.get()
                 print('==> dice: {}'.format(dice))
@@ -199,12 +199,12 @@ class RunNetwork(object):
         if not os.path.exists(self.save_image_path):
             os.makedirs(self.save_image_path)
 
-        if len(self.train_queue) != 0:
-            self.logger.info('Begin train set evaluation')
-            self.testing(self.train_queue, split='train', path=self.save_image_path)
-        # if len(self.valid_queue) != 0:
-        #     self.logger.info('Begin valid set evaluation')
-        #     self.testing(self.valid_queue, split='val', path=self.save_image_path)
+        # if len(self.train_queue) != 0:
+        #     self.logger.info('Begin train set evaluation')
+        #     self.testing(self.train_queue, split='train', path=self.save_image_path)
+        if len(self.valid_queue) != 0:
+            self.logger.info('Begin valid set evaluation')
+            self.testing(self.valid_queue, split='val', path=self.save_image_path)
         # if len(self.testing_queue) != 0:
         #     self.logger.info('Begin testing set evaluation')
         #     self.testing(self.testing_queue, split='testing', path=self.save_image_path)
