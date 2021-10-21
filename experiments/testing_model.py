@@ -38,17 +38,17 @@ class RunNetwork(object):
         parser = argparse.ArgumentParser(description='config')
 
         # Add default argument
-        parser.add_argument('--config', nargs='?', type=str, default='../configs/senas/senas_promise12.yml',
+        parser.add_argument('--config', nargs='?', type=str, default='../configs/senas/senas_chaos.yml',
                             help='Configuration file to use')
         parser.add_argument('--model', nargs='?', type=str, default='senas', help='Model to testing')
         parser.add_argument('--genotype', nargs='?', type=str,
-                            default="Genotype(down=[('se_conv_3', 1), ('dil_2_conv_5', 0), ('dil_3_conv_5', 0), ('dil_2_conv_5', 2), ('dil_3_conv_5', 0), ('dil_2_conv_5', 3)], down_concat=range(2, 5), up=[('up_sample', 1), ('dil_3_conv_5', 0), ('up_sample', 1), ('dil_3_conv_5', 2), ('up_sample', 1), ('dep_sep_conv_3', 3)], up_concat=range(2, 5), gamma=[1, 0, 1, 0, 1, 1])",
+                            default="Genotype(down=[('se_conv_3', 1), ('avg_pool', 0), ('dil_3_conv_5', 2), ('dep_sep_conv_5', 1), ('dil_3_conv_5', 2), ('avg_pool', 0), ('avg_pool', 1), ('dil_3_conv_5', 3)], down_concat=range(2, 6), up=[('up_sample', 1), ('dil_3_conv_5', 0), ('dil_3_conv_5', 0), ('dil_2_conv_5', 2), ('dil_3_conv_5', 1), ('dil_2_conv_5', 2), ('dep_sep_conv_3', 0), ('dil_2_conv_5', 4)], up_concat=range(2, 6), gamma=[0, 0, 0, 1, 1, 1])",
                             help='Model architecture')
         parser.add_argument('--loss', nargs='?', type=str, default='', help='Loss function')
         parser.add_argument('--depth', nargs='?', type=int, default=-1, help='Loss function')
-        parser.add_argument('--batch_size', nargs='?', type=int, default=-1, help='Batch size')
+        parser.add_argument('--batch_size', nargs='?', type=int, default=6, help='Batch size')
         parser.add_argument('--resume', nargs='?', type=str,
-                            default='../logs/senas/train/promise12/20211014-004755-504479/model_best.pth.tar',
+                            default='../logs/senas/train/chaos/20211017-170505-615151/model_best.pth.tar',
                             help='Resume path')
 
         self.args = parser.parse_args()
@@ -87,7 +87,7 @@ class RunNetwork(object):
         self.testingset = get_dataset(self.cfg['data']['dataset'], split='testing', mode='testing')
         self.nweight = self.trainset.class_weight
         self.n_classes = self.trainset.num_class
-        self.batch_size = self.cfg['training']['batch_size']
+        self.batch_size = self.args.batch_size if self.args.batch_size > 0 else self.cfg['training']['batch_size']
         kwargs = {'num_workers': self.cfg['training']['n_workers'], 'pin_memory': True}
 
         self.train_queue = data.DataLoader(self.trainset, batch_size=self.batch_size, drop_last=False, shuffle=False,
@@ -170,12 +170,12 @@ class RunNetwork(object):
                         tbar.set_description('loss: %.6f, pixAcc: %.3f, mIoU: %.6f, dice: %.6f'
                                              % (self.loss_meter.mloss(), pixAcc, mIoU, dice))
 
-                    N = predicts[-1].shape[0]
-                    for i in range(N):
-                        img = Image.fromarray(
-                            (torch.argmax(predicts[-1].cpu(), 1)[i] * 255).numpy().astype(np.uint8))
-                        file_name = str(step) + '_' + str(i) + '_mask.png'
-                        img.save(os.path.join(path, file_name), format="png")
+                    # N = predicts[-1].shape[0]
+                    # for i in range(N):
+                    #     img = Image.fromarray(
+                    #         (torch.argmax(predicts[-1].cpu(), 1)[i] * 255).numpy().astype(np.uint8))
+                    #     file_name = str(step) + '_' + str(i) + '_mask.png'
+                    #     img.save(os.path.join(path, file_name), format="png")
 
                 pixAcc, mIoU, dice = self.metric.get()
                 print('==> dice: {}'.format(dice))
