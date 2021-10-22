@@ -5,9 +5,9 @@ def plot(genotype, filename, format='pdf', directory="./cell_visualize"):
     g = Digraph(
         format=format,
         graph_attr=dict(dpi='800'),
-        edge_attr=dict(fontsize='20'),
+        edge_attr=dict(fontsize='30'),
         node_attr=dict(style='filled', shape='rect', align='center',
-                       fontsize='20', height='0.5', width='0.5',
+                       fontsize='30', height='0.5', width='0.5',
                        penwidth='2'),
         engine='dot'
     )

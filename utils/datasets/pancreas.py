@@ -16,7 +16,7 @@ from PIL import Image
 
 class Pancreas(BaseDataset):
 
-    BASE_DIR, NUM_CLASS, CROP_SIZE = ('Task07_Pancreas/', 2, 256)
+    BASE_DIR, NUM_CLASS, CROP_SIZE = ('Task07_Pancreas/', 2, 512)
     IN_CHANNELS = 1
     CLASS_WEIGHTS = None
     mean = [0.07691266]

@@ -84,7 +84,7 @@ def extract_grayscale_image(dicom_data):
 
 class CHAOS(BaseDataset):
     TYPE = 'CT'
-    BASE_DIR, NUM_CLASS, CROP_SIZE = ('CHAOS/CT_data_batch/', 2, 256) if TYPE=='CT'\
+    BASE_DIR, NUM_CLASS, CROP_SIZE = ('CHAOS/CT_data_batch/', 2, 512) if TYPE=='CT'\
         else ('CHAOS/MR_data_batch1/', 5, 256)
     IN_CHANNELS = 1
     CLASS_WEIGHTS = None
