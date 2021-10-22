@@ -216,23 +216,26 @@ class RandomRotate(object):
 
 class Scale(object):
     def __init__(self, size):
-        self.size = size
+        if isinstance(size, numbers.Number):
+            self.size = (int(size), int(size))
+        else:
+            self.size = size
 
     def __call__(self, img, mask):
         assert img.size == mask.size
         w, h = img.size
-        if (w >= h and w == self.size) or (h >= w and h == self.size):
+        if (w >= h and w == self.size[0]) or (h >= w and h == self.size[1]):
             return img, mask
         if w > h:
-            ow = self.size
-            oh = int(self.size * h / w)
+            ow = self.size[0]
+            oh = int(self.size[1] * h / w)
             return (
                 img.resize((ow, oh), Image.BILINEAR),
                 mask.resize((ow, oh), Image.NEAREST),
             )
         else:
-            oh = self.size
-            ow = int(self.size * w / h)
+            oh = self.size[0]
+            ow = int(self.size[1] * w / h)
             return (
                 img.resize((ow, oh), Image.BILINEAR),
                 mask.resize((ow, oh), Image.NEAREST),
@@ -273,10 +276,16 @@ class RandomCrop(object):
 
 class RandomSizedCrop(object):
     def __init__(self, size):
-        self.size = size
+        if isinstance(size, numbers.Number):
+            self.size = (int(size), int(size))
+        else:
+            self.size = size
 
     def __call__(self, img, mask):
         assert img.size == mask.size
+        if img.size[0] < self.size[0] or img.size[1] < self.size[1]:
+            img = img.resize(self.size, Image.BILINEAR)
+            mask = mask.resize(self.size, Image.NEAREST)
         for attempt in range(10):
             area = img.size[0] * img.size[1]
             target_area = random.uniform(0.45, 1.0) * area
@@ -297,8 +306,8 @@ class RandomSizedCrop(object):
                 assert img.size == (w, h)
 
                 return (
-                    img.resize((self.size, self.size), Image.BILINEAR),
-                    mask.resize((self.size, self.size), Image.NEAREST),
+                    img.resize(self.size, Image.BILINEAR),
+                    mask.resize(self.size, Image.NEAREST),
                 )
 
         # Notice, we must guarantee crop to the expected size
@@ -316,6 +325,9 @@ class CenterCrop(object):
 
     def __call__(self, img, mask):
         assert img.size == mask.size
+        if img.size[0] < self.size[0] or img.size[1] < self.size[1]:
+            img = img.resize(self.size, Image.BILINEAR)
+            mask = mask.resize(self.size, Image.NEAREST)
         w, h = img.size
         th, tw = self.size
         x1 = int(round((w - tw) / 2.))
