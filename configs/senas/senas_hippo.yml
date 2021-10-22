@@ -9,9 +9,9 @@ data:
     img_cols: 'same'
 searching:
     init_channels: 32
-    depth: 5
+    depth: 3
     epoch: 100
-    batch_size: 8
+    batch_size: 128
     report_freq: 10
     n_workers: 2
     alpha_begin: 15
@@ -41,7 +41,7 @@ searching:
 training:
     geno_type: senas
     init_channels: 32
-    depth: 5
+    depth: 3
     epoch: 2500
     batch_size: 256
     report_freq: 10
