@@ -257,7 +257,7 @@ class RandomCrop(object):
 
         assert img.size == mask.size
         w, h = img.size
-        th, tw = self.size
+        tw, th = self.size
         if w == tw and h == th:
             return img, mask
         if w < tw or h < th:
@@ -280,6 +280,7 @@ class RandomSizedCrop(object):
             self.size = (int(size), int(size))
         else:
             self.size = size
+        self.center_crop = CenterCrop(self.size)
 
     def __call__(self, img, mask):
         assert img.size == mask.size
@@ -288,8 +289,8 @@ class RandomSizedCrop(object):
             mask = mask.resize(self.size, Image.NEAREST)
         for attempt in range(10):
             area = img.size[0] * img.size[1]
-            target_area = random.uniform(0.45, 1.0) * area
-            aspect_ratio = random.uniform(0.5, 2)
+            target_area = random.uniform(0.7, 1.0) * area
+            aspect_ratio = random.uniform(0.6, 1.4)
 
             w = int(round(math.sqrt(target_area * aspect_ratio)))
             h = int(round(math.sqrt(target_area / aspect_ratio)))
@@ -305,15 +306,12 @@ class RandomSizedCrop(object):
                 mask = mask.crop((x1, y1, x1 + w, y1 + h))
                 assert img.size == (w, h)
 
-                return (
-                    img.resize(self.size, Image.BILINEAR),
-                    mask.resize(self.size, Image.NEAREST),
-                )
+                img = img.resize(self.size, Image.BILINEAR)
+                mask = mask.resize(self.size, Image.NEAREST)
+                return img, mask
 
         # Notice, we must guarantee crop to the expected size
-        scale = Scale(self.size)
-        crop = CenterCrop(self.size)
-        return crop(*scale(img, mask))
+        return self.center_crop(img, mask)
 
 
 class CenterCrop(object):
@@ -329,13 +327,12 @@ class CenterCrop(object):
             img = img.resize(self.size, Image.BILINEAR)
             mask = mask.resize(self.size, Image.NEAREST)
         w, h = img.size
-        th, tw = self.size
+        tw, th = self.size
         x1 = int(round((w - tw) / 2.))
         y1 = int(round((h - th) / 2.))
-        return (
-            img.crop((x1, y1, x1 + tw, y1 + th)),
-            mask.crop((x1, y1, x1 + tw, y1 + th)),
-        )
+        img = img.crop((x1, y1, x1 + tw, y1 + th))
+        mask = mask.crop((x1, y1, x1 + tw, y1 + th))
+        return img, mask
 
 
 class RandomSized(object):
