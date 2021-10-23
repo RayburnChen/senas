@@ -1,4 +1,5 @@
 from segmentation_models_pytorch import UnetPlusPlus, FPN, Linknet, MAnet, PSPNet, Unet, PAN, DeepLabV3Plus
+from .nasunet.nas_unet import NasUnet
 from .senas_model import *
 
 
@@ -21,6 +22,13 @@ def senas(dataset, **kwargs):
     from utils.datasets import datasets
     model = SenasModel(datasets[dataset.lower()].NUM_CLASS, datasets[dataset.lower()].IN_CHANNELS,
                        **kwargs)
+    return model
+
+
+def nasunet(dataset, **kwargs):
+    # infer number of classes
+    from utils.datasets import datasets
+    model = NasUnet(nclass=datasets[dataset.lower()].NUM_CLASS, in_channels=datasets[dataset.lower()].IN_CHANNELS)
     return model
 
 
@@ -77,5 +85,6 @@ def get_segmentation_model(name, **kwargs):
         'manet': manet,
         'pspnet': pspnet,
         'pan': pan,
+        'nasunet': nasunet,
     }
     return models[name.lower()](**kwargs)
