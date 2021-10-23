@@ -16,7 +16,7 @@ from PIL import Image
 
 class Heart(BaseDataset):
 
-    BASE_DIR, NUM_CLASS, CROP_SIZE = ('Task02_Heart/', 2, 256)
+    BASE_DIR, NUM_CLASS, CROP_SIZE = ('Task02_Heart/', 2, (320, 256))
     IN_CHANNELS = 1
     CLASS_WEIGHTS = None
     mean = [0.3949544]
