@@ -295,7 +295,9 @@ class RandomSizedCrop(object):
             w = int(round(math.sqrt(target_area * aspect_ratio)))
             h = int(round(math.sqrt(target_area / aspect_ratio)))
 
-            if random.random() < 0.5:
+            if self.size[0] > self.size[1] and w < h:
+                w, h = h, w
+            elif self.size[0] < self.size[1] and w > h:
                 w, h = h, w
 
             if w <= img.size[0] and h <= img.size[1]:
