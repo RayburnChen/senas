@@ -42,7 +42,7 @@ training:
     geno_type: senas
     init_channels: 32
     depth: 3
-    epoch: 2500
+    epoch: 3500
     batch_size: 256
     report_freq: 10
     n_workers: 2
