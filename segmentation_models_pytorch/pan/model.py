@@ -45,6 +45,7 @@ class PAN(SegmentationModel):
             self,
             encoder_name: str = "resnet34",
             encoder_weights: Optional[str] = "imagenet",
+            encoder_depth: int = 5,
             encoder_output_stride: int = 16,
             decoder_channels: int = 32,
             in_channels: int = 3,
@@ -61,7 +62,7 @@ class PAN(SegmentationModel):
         self.encoder = get_encoder(
             encoder_name,
             in_channels=in_channels,
-            depth=5,
+            depth=encoder_depth,
             weights=encoder_weights,
             output_stride=encoder_output_stride,
         )
