@@ -147,7 +147,7 @@ class RunNetwork(object):
                 return False
         return False
 
-    def testing(self, img_queue, split='val', path=''):
+    def testing(self, img_queue, split='val', path='', save_mask=False):
         self.model.eval()
         tbar = tqdm(img_queue)
         print('Save prediction image on : {}'.format(path))
@@ -169,13 +169,13 @@ class RunNetwork(object):
                             split, self.loss_meter.mloss(), pixAcc, mIoU, dice))
                         tbar.set_description('loss: %.6f, pixAcc: %.3f, mIoU: %.6f, dice: %.6f'
                                              % (self.loss_meter.mloss(), pixAcc, mIoU, dice))
-
-                    N = predicts[-1].shape[0]
-                    for i in range(N):
-                        img = Image.fromarray(
-                            (torch.argmax(predicts[-1].cpu(), 1)[i] * 255).numpy().astype(np.uint8))
-                        file_name = str(step) + '_' + str(i) + '_mask.png'
-                        img.save(os.path.join(path, file_name), format="png")
+                    if save_mask:
+                        N = predicts[-1].shape[0]
+                        for i in range(N):
+                            img = Image.fromarray(
+                                (torch.argmax(predicts[-1].cpu(), 1)[i] * 255).numpy().astype(np.uint8))
+                            file_name = str(step) + '_' + str(i) + '_mask.png'
+                            img.save(os.path.join(path, file_name), format="png")
 
                 pixAcc, mIoU, dice = self.metric.get()
                 print('==> dice: {}'.format(dice))

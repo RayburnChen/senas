@@ -273,7 +273,7 @@ def store_images(inputs, predicts, target, dataset='promise12'):
             target2s = torch.from_numpy(np.expand_dims(np.array(target2s), axis=0)).float()
 
         grid_image_list += [inputs[i].cpu(), mask2s, target2s]
-    grid_image = make_grid(grid_image_list, normalize=True, scale_each=True)
+    grid_image = make_grid(grid_image_list, normalize=True, scale_each=True, nrow=3)
     return grid_image
 
 
