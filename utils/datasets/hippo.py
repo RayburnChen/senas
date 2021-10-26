@@ -77,7 +77,7 @@ class Hippo(BaseDataset):
             img, target = self.random_center_crop(img, target)
 
         # 2. do joint transform
-        if self.joint_transform is not None:
+        if self.joint_transform is not None and self.mode == "train":
             img, target = self.joint_transform(img, target)
 
         ## 3.to tensor

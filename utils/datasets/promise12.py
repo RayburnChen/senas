@@ -361,7 +361,7 @@ class Promise12(BaseDataset):
             RandomTranslate(offset=(0.2, 0.1)),
             RandomVerticallyFlip(),
             RandomHorizontallyFlip(),
-            RandomElasticTransform(alpha = 1.5, sigma = 0.07, img_type='F'),
+            # RandomElasticTransform(alpha = 1.5, sigma = 0.07, img_type='F'),
             ])
 
         self.img_normalize = None
@@ -401,10 +401,11 @@ class Promise12(BaseDataset):
         if self.mode != 'test':
             target = Image.fromarray(target, mode='L')
             # 2. do joint transform
-            if self.joint_transform is not None:
+            if self.joint_transform is not None and self.mode == "train":
                 img, target = self.joint_transform(img, target)
-                # 3. to tensor
-                img, target = self.to_tensor(img, target)
+
+            # 3. to tensor
+            img, target = self.to_tensor(img, target)
         else:
             # 3. img to tensor
             img = transforms.ToTensor()(np.array(img))
