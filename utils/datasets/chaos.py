@@ -99,7 +99,7 @@ class CHAOS(BaseDataset):
             RandomTranslate(offset=(0.3, 0.3)),
             RandomVerticallyFlip(),
             RandomHorizontallyFlip(),
-            # RandomElasticTransform(alpha=1.5, sigma=0.07),
+            RandomElasticTransform(alpha=1.5, sigma=0.07),
         ])
         base_path = os.path.join(self.root, self.BASE_DIR)
         self.data_info = []

@@ -29,7 +29,7 @@ class Spleen(BaseDataset):
             RandomTranslate(offset=(0.2, 0.1)),
             RandomVerticallyFlip(),
             RandomHorizontallyFlip(),
-            # RandomElasticTransform(alpha=1.5, sigma=0.07),
+            RandomElasticTransform(alpha=1.5, sigma=0.07),
         ])
         base_path = os.path.join(self.root, self.BASE_DIR)
         image_path = os.path.join(base_path, 'imagesTr')
