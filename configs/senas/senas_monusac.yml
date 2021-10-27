@@ -42,7 +42,7 @@ training:
     geno_type: senas
     init_channels: 32
     depth: 5
-    epoch: 3000
+    epoch: 3500
     batch_size: 12
     report_freq: 10
     n_workers: 2
@@ -53,7 +53,7 @@ training:
     max_patience: 500
     model_optimizer:
         name: 'sgd'
-        lr: 1.0e-2
+        lr: 5.0e-2
         weight_decay: 5.0e-4
         momentum: 0.9
     loss:
