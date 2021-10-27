@@ -275,16 +275,17 @@ class RandomCrop(object):
 
 
 class RandomSizedCrop(object):
-    def __init__(self, size):
+    def __init__(self, size, presize=False):
         if isinstance(size, numbers.Number):
             self.size = (int(size), int(size))
         else:
             self.size = size
-        self.center_crop = CenterCrop(self.size)
+        self.presize = presize
+        self.center_crop = CenterCrop(self.size, self.presize)
 
     def __call__(self, img, mask):
         assert img.size == mask.size
-        if img.size[0] < self.size[0] or img.size[1] < self.size[1]:
+        if self.presize or img.size[0] < self.size[0] or img.size[1] < self.size[1]:
             img = img.resize(self.size, Image.BILINEAR)
             mask = mask.resize(self.size, Image.NEAREST)
         for attempt in range(10):
@@ -317,15 +318,16 @@ class RandomSizedCrop(object):
 
 
 class CenterCrop(object):
-    def __init__(self, size):
+    def __init__(self, size, presize=False):
         if isinstance(size, numbers.Number):
             self.size = (int(size), int(size))
         else:
             self.size = size
+        self.presize = presize
 
     def __call__(self, img, mask):
         assert img.size == mask.size
-        if img.size[0] < self.size[0] or img.size[1] < self.size[1]:
+        if self.presize or img.size[0] < self.size[0] or img.size[1] < self.size[1]:
             img = img.resize(self.size, Image.BILINEAR)
             mask = mask.resize(self.size, Image.NEAREST)
         w, h = img.size

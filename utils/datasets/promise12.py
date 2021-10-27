@@ -351,6 +351,7 @@ class Promise12(BaseDataset):
     # CROP_SIZE = 384
     CROP_SIZE = 256
     CLASS_WEIGHTS = None
+    PRESIZE = False
 
     def __init__(self, root, split='train', mode=None):
         super(Promise12, self).__init__(root, split=split, mode=mode)

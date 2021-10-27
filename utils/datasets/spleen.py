@@ -16,7 +16,7 @@ from PIL import Image
 
 class Spleen(BaseDataset):
 
-    BASE_DIR, NUM_CLASS, CROP_SIZE = ('Task09_Spleen/', 2, 512)
+    BASE_DIR, NUM_CLASS, CROP_SIZE, PRESIZE = ('Task09_Spleen/', 2, 256, True)
     IN_CHANNELS = 1
     CLASS_WEIGHTS = None
     mean = [0.072520524]

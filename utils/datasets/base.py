@@ -18,8 +18,8 @@ __all__ = ['BaseDataset']
 class BaseDataset(data.Dataset):
     def __init__(self, root, split, mode=None, norm={'mu':[.485, .456, .406], 'std':[.229, .224, .225]}):
         self.root = root
-        self.random_crop = RandomSizedCrop(size=self.crop_size)
-        self.random_center_crop = CenterCrop(size=self.crop_size)
+        self.random_crop = RandomSizedCrop(size=self.crop_size, presize=self.presize)
+        self.random_center_crop = CenterCrop(size=self.crop_size, presize=self.presize)
         self.img_normalize = transforms.Normalize(norm['mu'], norm['std'])
         self.test_resize = transforms.Resize(size=self.crop_size)
         self.to_tensor = ToTensor()
@@ -54,6 +54,10 @@ class BaseDataset(data.Dataset):
     @property
     def crop_size(self):
         return self.CROP_SIZE
+
+    @property
+    def presize(self):
+        return self.PRESIZE
 
     @property
     def pred_offset(self):

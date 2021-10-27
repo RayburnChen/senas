@@ -16,7 +16,7 @@ from PIL import Image
 
 class Hippo(BaseDataset):
 
-    BASE_DIR, NUM_CLASS, CROP_SIZE = ('Task04_Hippocampus/', 2, (48, 32))
+    BASE_DIR, NUM_CLASS, CROP_SIZE, PRESIZE = ('Task04_Hippocampus/', 2, (48, 32), False)
     IN_CHANNELS = 1
     CLASS_WEIGHTS = None
     mean = [0.79002064]

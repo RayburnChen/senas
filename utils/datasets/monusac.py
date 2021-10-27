@@ -8,7 +8,7 @@ from PIL import Image
 
 
 class MoNuSAC(BaseDataset):
-    BASE_DIR, NUM_CLASS, CROP_SIZE = ('MoNuSAC/', 2, 256)
+    BASE_DIR, NUM_CLASS, CROP_SIZE, PRESIZE = ('MoNuSAC/', 2, 256, False)
     IN_CHANNELS = 1
     CLASS_WEIGHTS = None
     mean = [0.5336434],
