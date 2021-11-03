@@ -215,7 +215,7 @@ class Network(object):
             ))
 
             if self.epoch % self.cfg['training']['report_freq'] == 0:
-                self.logger.info('GPU memory total:{}, reserved:{}, allocated:{}, waiting:{}'.format(*gpu_memory()))
+                self.logger.info('GPU {} memory total:{}, reserved:{}, allocated:{}, waiting:{}'.format(*gpu_memory()))
 
             if self.save_best:
                 save_checkpoint({

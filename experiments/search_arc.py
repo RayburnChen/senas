@@ -222,7 +222,7 @@ class SearchNetwork(object):
             self.infer()
 
             if self.epoch % self.cfg['searching']['report_freq'] == 0:
-                self.logger.info('GPU memory total:{}, reserved:{}, allocated:{}, waiting:{}'.format(*gpu_memory()))
+                self.logger.info('GPU {} memory total:{}, reserved:{}, allocated:{}, waiting:{}'.format(*gpu_memory()))
 
             save_checkpoint({
                 'epoch': epoch + 1,

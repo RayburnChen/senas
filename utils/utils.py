@@ -311,12 +311,13 @@ def create_class_weight(list_weight, mu=0.15):
 
 
 def gpu_memory(n=0):
+    name = torch.cuda.get_device_name(n)
     t = torch.cuda.get_device_properties(n).total_memory
     r = torch.cuda.memory_reserved(n)
     a = torch.cuda.memory_allocated(n)
     f = r - a  # free inside reserved
     res = t, r, a, f
-    return [str(round(x / 1024 / 1024 / 1024, 2)) + ' GB' for x in res]
+    return [name] + [str(round(x / 1024 / 1024 / 1024, 2)) + ' GB' for x in res]
 
 
 def complexity_info(model, input_size):
