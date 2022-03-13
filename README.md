@@ -5,10 +5,10 @@
 <img src="imgs/senas_overview.png" width="100%">
 
 ## Cell
-<img src="imgs/senas_cell.png">
+<img src="imgs/senas_cell.png" width="80%">
 
 ## Node
-<img src="imgs/senas_node.png">
+<img src="imgs/senas_node.png" width="60%">
 
 
 ## Requirement
@@ -56,7 +56,7 @@ python ./train_model.py --config ../configs/senas/senas_promise12.yml --model se
 ```bash
 tensorboard --logdir 'C:\Users\xxx\senas\logs\senas\train\promise12\20210930-193026-202268\tbx_log'
 ```
-<img src="imgs/senas_loss.png">
+<img src="imgs/senas_loss.png" width="60%">
 
 
 ### Custom configurations for different datasets
@@ -67,7 +67,25 @@ tensorboard --logdir 'C:\Users\xxx\senas\logs\senas\train\promise12\20210930-193
 
 ### Source of data
 
-**Download the data file from the data source website and unzip it to the path shown below**
++ download the data files:
+
+CHAOS:
+https://chaos.grand-challenge.org/Download/
+https://zenodo.org/record/3431873#.Yi6AP_7P2Uk
+
+PROMISE:
+https://promise12.grand-challenge.org/Download/
+
+MoNuSAC:
+https://monusac-2020.grand-challenge.org/Data/
+https://github.com/ruchikaverma-iitg/MoNuSAC
+
+Medical Segmentation Decathlon (Heart, Spleen, Hippocampus):
+http://medicaldecathlon.com/
+https://goo.gl/QzVZcm
+
+
++ unzip files into the path shown below**
 ![figure2](imgs/senas_data.png)
 
 
