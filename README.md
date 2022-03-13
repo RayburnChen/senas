@@ -2,7 +2,7 @@
 
 
 
-![figure1](imgs/senas_overview.png)
+<img src="imgs/senas_overview.png" width="100%">
 
 
 ## Requirement
