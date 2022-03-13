@@ -16,7 +16,7 @@ visdom==0.1.8.9
 matplotlib==3.4.3
 pydicom==2.1.2
 scipy==1.7.1
-numpy==1.19.5
+numpy>=1.21
 graphviz==0.16
 opencv_python==4.5.1.48
 inplace_abn==1.1.0
