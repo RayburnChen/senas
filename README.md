@@ -1,10 +1,9 @@
 ## SENAS: Shrink and Expand Neural Architecture Search for Medical Image Segmentation
 
 
-## Macro-architecture Overview
 <img src="imgs/senas_overview.png" width="100%">
 
-## Micro-cell structure
+## Cell structure
 <img src="imgs/senas_cell.png" width="80%">
 
 ## Node Structure
