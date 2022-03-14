@@ -99,24 +99,24 @@ python ./train_model.py --config ../configs/senas/senas_hippo.yml --model senas
 
 + download the data files:
 
-CHAOS:
-https://chaos.grand-challenge.org/Download/
-https://zenodo.org/record/3431873#.Yi6AP_7P2Uk
++ CHAOS:
++ https://chaos.grand-challenge.org/Download/
++ https://zenodo.org/record/3431873#.Yi6AP_7P2Uk
 
-PROMISE:
-https://promise12.grand-challenge.org/Download/
++ PROMISE:
++ https://promise12.grand-challenge.org/Download/
 
-MoNuSAC:
-https://monusac-2020.grand-challenge.org/Data/
-https://github.com/ruchikaverma-iitg/MoNuSAC
++ MoNuSAC:
++ https://monusac-2020.grand-challenge.org/Data/
++ https://github.com/ruchikaverma-iitg/MoNuSAC
 
-Medical Segmentation Decathlon (Heart, Spleen, Hippocampus):
-http://medicaldecathlon.com/
-https://goo.gl/QzVZcm
++ Medical Segmentation Decathlon (Heart, Spleen, Hippocampus):
++ http://medicaldecathlon.com/
++ https://goo.gl/QzVZcm
 
 
 + unzip files into the path shown below**
-![figure2](imgs/senas_data.png)
+<img src="imgs/senas_data.png" width="60%">
 
 
 
