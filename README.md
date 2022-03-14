@@ -1,13 +1,13 @@
 ## SENAS: Shrink and Expand Neural Architecture Search for Medical Image Segmentation
 
 
-## Overview
+## Macro-architecture Overview
 <img src="imgs/senas_overview.png" width="100%">
 
-## Cell
+## Micro-cell structure
 <img src="imgs/senas_cell.png" width="80%">
 
-## Node
+## Node Structure
 <img src="imgs/senas_node.png" width="60%">
 
 
@@ -58,11 +58,42 @@ tensorboard --logdir 'C:\Users\xxx\senas\logs\senas\train\promise12\20210930-193
 ```
 <img src="imgs/senas_loss.png" width="60%">
 
++ other baseline models:
+
+We acknowledge qubvel for providing the re-implemented baseline models:
+https://github.com/qubvel/segmentation_models.pytorch
+
++ train with other baseline models:
+```bash
+python ./train_model.py --config ../configs/senas/senas_promise12.yml --model unet
+python ./train_model.py --config ../configs/senas/senas_promise12.yml --model unet_plus_plus
+python ./train_model.py --config ../configs/senas/senas_promise12.yml --model manet
+python ./train_model.py --config ../configs/senas/senas_promise12.yml --model deeplab_v3_plus
+python ./train_model.py --config ../configs/senas/senas_promise12.yml --model fpn
+python ./train_model.py --config ../configs/senas/senas_promise12.yml --model pspnet
+python ./train_model.py --config ../configs/senas/senas_promise12.yml --model pan
+python ./train_model.py --config ../configs/senas/senas_promise12.yml --model linknet
+python ./train_model.py --config ../configs/senas/senas_promise12.yml --model nasunet
+```
+
++ train with different datasets:
+```bash
+python ./train_model.py --config ../configs/senas/senas_chaos.yml --model senas
+python ./train_model.py --config ../configs/senas/senas_promise12.yml --model senas
+python ./train_model.py --config ../configs/senas/senas_monusac.yml --model senas
+python ./train_model.py --config ../configs/senas/senas_heart.yml --model senas
+python ./train_model.py --config ../configs/senas/senas_spleen.yml --model senas
+python ./train_model.py --config ../configs/senas/senas_hippo.yml --model senas
+```
 
 ### Custom configurations for different datasets
 
-**edit configs/senas/*.yml**
++ There are many hyper parameters that can be adjusted and configured, please refer to those yml files for more details.
++ edit configs/senas/*.yml
 
+
+### Segmentation results
+<img src="imgs/senas_segmentation.png">
 
 
 ### Source of data
@@ -87,6 +118,7 @@ https://goo.gl/QzVZcm
 
 + unzip files into the path shown below**
 ![figure2](imgs/senas_data.png)
+
 
 
 ## Citation
