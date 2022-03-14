@@ -75,10 +75,19 @@ python ./train_model.py --config ../configs/senas/senas_spleen.yml --model senas
 python ./train_model.py --config ../configs/senas/senas_hippo.yml --model senas
 ```
 
-### Custom configurations for different datasets
+## Evaluate trained model
+
++ evaluate a trained model on a test dataset:
+```bash
+python ./testing_model.py --config ../configs/senas/senas_promise12.yml --model senas --resume "../logs/senas/train/promise12/20211017-170505-615151/model_best.pth.tar" --genotype "Genotype(down=[('se_conv_3', 1), ('avg_pool', 0), ('dil_3_conv_5', 2), ('dep_sep_conv_5', 1), ('dil_3_conv_5', 2), ('avg_pool', 0), ('avg_pool', 1), ('dil_3_conv_5', 3)], down_concat=range(2, 6), up=[('up_sample', 1), ('dil_3_conv_5', 0), ('dil_3_conv_5', 0), ('dil_2_conv_5', 2), ('dil_3_conv_5', 1), ('dil_2_conv_5', 2), ('dep_sep_conv_3', 0), ('dil_2_conv_5', 4)], up_concat=range(2, 6), gamma=[0, 0, 0, 1, 1, 1])"
+```
+
+### Custom configurations
 
 + There are many hyper parameters that can be adjusted and configured, please refer to those yml files for more details.
-+ edit configs/senas/*.yml
++ check configs/senas/*.yml
++ There are several data pre-processing and augmentation for different datasets
++ check utils/datasets/*.py
 
 
 ## Segmentation results
@@ -104,9 +113,16 @@ python ./train_model.py --config ../configs/senas/senas_hippo.yml --model senas
 + http://medicaldecathlon.com/
 + https://goo.gl/QzVZcm
 
-
 + unzip files into the path shown below
 <img src="imgs/senas_data.png" width="40%">
+
+
+### Custom data source
+
++ unzip your data files into the data folder
++ create a new yml configuration
++ create data loader and preprocessor, follow the same pattern as utils/datasets/chaos.py
++ run the search, train, and evaluate as described in the previous sections.
 
 
 ## Related work
