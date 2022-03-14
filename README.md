@@ -115,10 +115,10 @@ python ./train_model.py --config ../configs/senas/senas_hippo.yml --model senas
 
 ## Related work
 
-[PC-DARTS: Partial Channel Connections for Memory-Efficient Architecture Search](https://github.com/yuhuixu1993/PC-DARTS)
++ [PC-DARTS: Partial Channel Connections for Memory-Efficient Architecture Search](https://github.com/yuhuixu1993/PC-DARTS)
 
-The skeleton of our code is referenced from NasUnet, we fixed several critical issues and re-implemented most of the code.
-[NAS-Unet: Neural Architecture Search for Medical Image Segmentation](https://github.com/tianbaochou/NasUnet)
++ The skeleton of our code is referenced from NasUnet, we fixed several critical issues and re-implemented most of the code.
++ [NAS-Unet: Neural Architecture Search for Medical Image Segmentation](https://github.com/tianbaochou/NasUnet)
 
 
 ## Citation
