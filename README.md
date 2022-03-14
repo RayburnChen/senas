@@ -51,10 +51,6 @@ tensorboard --logdir 'C:\Users\xxx\senas\logs\senas\train\promise12\20210930-193
 ```
 <img src="imgs/senas_loss.png" width="60%">
 
-+ other baseline models:
-
-We acknowledge qubvel for providing the re-implemented baseline models:
-https://github.com/qubvel/segmentation_models.pytorch
 
 + train with other baseline models:
 ```bash
@@ -114,6 +110,8 @@ python ./train_model.py --config ../configs/senas/senas_hippo.yml --model senas
 
 
 ## Related work
+
++ We acknowledge qubvel for providing re-implemented baseline models: [Segmentation models](https://github.com/qubvel/segmentation_models.pytorch)
 
 + [PC-DARTS: Partial Channel Connections for Memory-Efficient Architecture Search](https://github.com/yuhuixu1993/PC-DARTS)
 
