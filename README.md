@@ -3,12 +3,6 @@
 
 <img src="imgs/senas_overview.png" width="100%">
 
-## Cell structure
-<img src="imgs/senas_cell.png" width="80%">
-
-## Node Structure
-<img src="imgs/senas_node.png" width="60%">
-
 
 ## Requirement
 See requirements.txt for more details.
@@ -116,8 +110,15 @@ python ./train_model.py --config ../configs/senas/senas_hippo.yml --model senas
 
 
 + unzip files into the path shown below**
-<img src="imgs/senas_data.png" width="60%">
+<img src="imgs/senas_data.png" width="40%">
 
+
+## Related work
+
+[PC-DARTS: Partial Channel Connections for Memory-Efficient Architecture Search](https://github.com/yuhuixu1993/PC-DARTS)
+
+The skeleton of our code is referenced from NasUnet, we fixed several critical issues and re-implemented most of the code.
+[NAS-Unet: Neural Architecture Search for Medical Image Segmentation](https://github.com/tianbaochou/NasUnet)
 
 
 ## Citation
