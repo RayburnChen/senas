@@ -109,7 +109,7 @@ python ./train_model.py --config ../configs/senas/senas_hippo.yml --model senas
 + https://goo.gl/QzVZcm
 
 
-+ unzip files into the path shown below**
++ unzip files into the path shown below
 <img src="imgs/senas_data.png" width="40%">
 
 
@@ -119,7 +119,7 @@ python ./train_model.py --config ../configs/senas/senas_hippo.yml --model senas
 
 + [NAS-Unet: Neural Architecture Search for Medical Image Segmentation](https://github.com/tianbaochou/NasUnet)
 
-+ The skeleton of our code is referenced from NasUnet, we fixed several critical issues and re-implemented most of the code.
++ The skeleton of our code is referenced from NasUnet, we fixed several issues and re-implemented most of them.
 
 
 ## Citation
