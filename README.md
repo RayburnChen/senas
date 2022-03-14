@@ -12,7 +12,7 @@ pip3 install -r requirements.txt
 conda install --file requirements.txt
 ```
 
-### Search the architecture
+## Search the architecture
 
 ```bash
 cd experiments
@@ -20,7 +20,7 @@ cd experiments
 python ./search_arc.py --config ../configs/senas/senas_promise12.yml
 ```
 
-## Searched genotype examples and visualization
+### Searched genotype examples and visualization
 
 <img src="imgs/senas_searched_cells.png">
 
@@ -31,7 +31,7 @@ cd tools
 python ./cell_visualize.py
 ```
 
-### Train from scratch
+## Train from scratch
 
 + train with a built-in genotype:
 ```bash
@@ -85,11 +85,11 @@ python ./train_model.py --config ../configs/senas/senas_hippo.yml --model senas
 + edit configs/senas/*.yml
 
 
-### Segmentation results
+## Segmentation results
 <img src="imgs/senas_segmentation.png">
 
 
-### Source of data
+## Source of data
 
 + download the data files:
 
