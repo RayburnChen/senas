@@ -7,7 +7,11 @@ and visualisation.
 """
 from __future__ import annotations
 
+import logging
+
 import numpy as np
+
+logger = logging.getLogger(__name__)
 
 
 class KohonenSOM:
@@ -58,6 +62,13 @@ class KohonenSOM:
         self._coords_y = ys
 
         self.weights: np.ndarray | None = None
+        # Quantisation error after each iteration, populated by fit(record_history=True).
+        # This is what lets you plot a learning curve and compare hyperparameters.
+        self.quantization_error_history_: list[float] = []
+
+    def _check_fitted(self) -> None:
+        if self.weights is None:
+            raise RuntimeError("SOM is not trained yet -- call fit() first.")
 
     def _decay(self, initial_value: float, t: int) -> float:
         """Exponential decay shared by the radius and the learning rate."""
@@ -70,8 +81,18 @@ class KohonenSOM:
         sq_dist = np.sum((self.weights - vector) ** 2, axis=-1)  # (width, height)
         return np.unravel_index(np.argmin(sq_dist), sq_dist.shape)
 
-    def fit(self, data: np.ndarray) -> "KohonenSOM":
-        """Train the SOM on ``data`` of shape (n_samples, n_features)."""
+    def _distances_to_nodes(self, data: np.ndarray) -> np.ndarray:
+        """Euclidean distance from every input to every node -> (n_samples, n_nodes)."""
+        flat = self.weights.reshape(-1, self.weights.shape[-1])  # (n_nodes, dim)
+        return np.linalg.norm(data[:, None, :] - flat[None], axis=2)
+
+    def fit(self, data: np.ndarray, record_history: bool = False) -> "KohonenSOM":
+        """Train the SOM on ``data`` of shape (n_samples, n_features).
+
+        If ``record_history`` is set, the quantisation error is measured after
+        every iteration and stored on ``quantization_error_history_`` so the
+        learning curve can be inspected.
+        """
         data = np.asarray(data, dtype=float)
         if data.ndim != 2 or data.shape[0] == 0:
             raise ValueError("data must be a non-empty 2D array (n_samples, n_features)")
@@ -80,6 +101,11 @@ class KohonenSOM:
         n_features = data.shape[1]
         rng = np.random.default_rng(self.random_state)
         self.weights = rng.random((self.width, self.height, n_features))
+        self.quantization_error_history_ = []
+        logger.info(
+            "Training SOM: grid=%dx%d, iterations=%d, n_samples=%d, n_features=%d",
+            self.width, self.height, self.n_iterations, data.shape[0], n_features,
+        )
 
         for t in range(self.n_iterations):
             radius = self._decay(self.initial_radius, t)
@@ -94,21 +120,46 @@ class KohonenSOM:
                 influence = np.exp(-grid_sq_dist / two_radius_sq)  # (width, height)
                 # Nudge all nodes toward the input at once via broadcasting.
                 self.weights += learning_rate * influence[..., None] * (vector - self.weights)
+
+            if record_history:
+                qe = self.quantization_error(data)
+                self.quantization_error_history_.append(qe)
+                logger.debug("iter %d/%d  qe=%.6f", t + 1, self.n_iterations, qe)
+
+        if record_history:
+            logger.info("Training complete: final qe=%.6f", self.quantization_error_history_[-1])
         return self
 
     def predict(self, data: np.ndarray) -> np.ndarray:
         """Map each input vector to its BMU coordinates -> array of shape (n, 2)."""
+        self._check_fitted()
         data = np.asarray(data, dtype=float)
-        return np.array([self._best_matching_unit(v) for v in data])
+        nearest = self._distances_to_nodes(data).argmin(axis=1)
+        xs, ys = np.unravel_index(nearest, (self.width, self.height))
+        return np.stack([xs, ys], axis=1)
 
     def quantization_error(self, data: np.ndarray) -> float:
-        """Mean distance from each input to its BMU's weights (lower = better fit)."""
+        """Mean distance from each input to its BMU's weights (lower = better fit).
+
+        The primary SOM metric: it measures how well the map represents the data,
+        which is exactly what training optimises.
+        """
+        self._check_fitted()
         data = np.asarray(data, dtype=float)
-        errors = [
-            np.sqrt(np.sum((self.weights[x, y] - v) ** 2))
-            for v, (x, y) in zip(data, self.predict(data))
-        ]
-        return float(np.mean(errors))
+        return float(self._distances_to_nodes(data).min(axis=1).mean())
+
+    def topographic_error(self, data: np.ndarray) -> float:
+        """Fraction of inputs whose 1st and 2nd BMUs are not grid-neighbours.
+
+        The secondary SOM metric: it measures topology preservation -- similar
+        inputs should land on nearby nodes. Lower is better.
+        """
+        self._check_fitted()
+        data = np.asarray(data, dtype=float)
+        nearest_two = np.argsort(self._distances_to_nodes(data), axis=1)[:, :2]
+        xs, ys = np.unravel_index(nearest_two, (self.width, self.height))
+        non_adjacent = (np.abs(xs[:, 0] - xs[:, 1]) > 1) | (np.abs(ys[:, 0] - ys[:, 1]) > 1)
+        return float(np.mean(non_adjacent))
 
     def save(self, path: str) -> None:
         """Persist the trained weights (the model artifact) to ``path``.npy."""
@@ -125,13 +176,17 @@ if __name__ == "__main__":
     # dependency-light for anyone who just wants the SOM.
     import matplotlib.pyplot as plt
 
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
+
     rng = np.random.default_rng(42)
     colours = rng.random((10, 3))
 
-    som = KohonenSOM(10, 10, n_iterations=100, random_state=42).fit(colours)
-    plt.imsave("100.png", som.weights)
-    print("quantization error (10x10):", round(som.quantization_error(colours), 4))
-
-    som = KohonenSOM(100, 100, n_iterations=1000, random_state=42).fit(colours)
-    plt.imsave("1000.png", som.weights)
-    print("quantization error (100x100):", round(som.quantization_error(colours), 4))
+    for (width, height, n_iter, out) in [(10, 10, 100, "100.png"), (100, 100, 1000, "1000.png")]:
+        som = KohonenSOM(width, height, n_iterations=n_iter, random_state=42)
+        som.fit(colours, record_history=True)
+        plt.imsave(out, som.weights)
+        print(
+            f"{width}x{height}, {n_iter} iters -> "
+            f"QE={som.quantization_error(colours):.4f}  "
+            f"TE={som.topographic_error(colours):.4f}"
+        )
